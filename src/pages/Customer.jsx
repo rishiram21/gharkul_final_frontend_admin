@@ -1,9 +1,9 @@
 import React from 'react'
 
-const Users = () => {
+const Customer = () => {
   return (
     <div>Users</div>
   )
 }
 
-export default Users
+export default Customer;
