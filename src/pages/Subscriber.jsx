@@ -46,57 +46,56 @@ const Subscriber = () => {
     }
   };
 
-  if (loading) return <div className="p-5 text-center">Loading...</div>;
+  if (loading) return <div className="p-5 text-center text-purple-600">Loading...</div>;
   if (error) return <div className="p-5 text-center text-red-500">{error}</div>;
 
   return (
-    <div className="p-5">
+    <div className="p-5 bg-purple-50 min-h-screen">
       <div className="flex justify-between items-center mb-4">
-        <h1 className="text-2xl font-bold">Manage Subscriptions</h1>
+        <h1 className="text-2xl font-bold text-purple-800">Manage Subscriptions</h1>
         <Link
           to="/addsubscription"
-          className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+          className="px-4 py-2 bg-purple-600 text-white rounded hover:bg-purple-700 transition duration-300"
         >
           Add Subscription
         </Link>
       </div>
 
-      <div className="overflow-x-auto">
-        <h2 className="text-xl font-semibold mb-2">Subscriptions List</h2>
-        <table className="min-w-full bg-white border">
-          <thead>
+      <div className="overflow-x-auto bg-white rounded-lg shadow">
+        <table className="min-w-full">
+          <thead className="bg-purple-600 text-white">
             <tr>
-              <th className="py-2 px-4 border">User ID</th>
-              <th className="py-2 px-4 border">Package ID</th>
-              <th className="py-2 px-4 border">Price</th>
-              <th className="py-2 px-4 border">Payment Type</th>
-              <th className="py-2 px-4 border">Start Date</th>
-              <th className="py-2 px-4 border">End Date</th>
-              <th className="py-2 px-4 border">Status</th>
-              <th className="py-2 px-4 border">Role</th>
-              <th className="py-2 px-4 border">Posts Used</th>
-              <th className="py-2 px-4 border">Contacts Used</th>
-              <th className="py-2 px-4 border">Actions</th>
+              <th className="py-3 px-4 text-left">User ID</th>
+              <th className="py-3 px-4 text-left">Package ID</th>
+              <th className="py-3 px-4 text-left">Price</th>
+              <th className="py-3 px-4 text-left">Payment Type</th>
+              <th className="py-3 px-4 text-left">Start Date</th>
+              <th className="py-3 px-4 text-left">End Date</th>
+              <th className="py-3 px-4 text-left">Status</th>
+              <th className="py-3 px-4 text-left">Role</th>
+              <th className="py-3 px-4 text-left">Posts Used</th>
+              <th className="py-3 px-4 text-left">Contacts Used</th>
+              <th className="py-3 px-4 text-left">Actions</th>
             </tr>
           </thead>
           <tbody>
             {subscriptions.length > 0 ? (
               subscriptions.map((subscription) => (
-                <tr key={subscription.subscriberId}>
-                  <td className="py-2 px-4 border">{subscription.userId}</td>
-                  <td className="py-2 px-4 border">{subscription.packageId}</td>
-                  <td className="py-2 px-4 border">{subscription.price}</td>
-                  <td className="py-2 px-4 border">{subscription.paymentType}</td>
-                  <td className="py-2 px-4 border">{subscription.subscriptionStartDate}</td>
-                  <td className="py-2 px-4 border">{subscription.subscriptionEndDate}</td>
-                  <td className="py-2 px-4 border">{subscription.status}</td>
-                  <td className="py-2 px-4 border">{subscription.role}</td>
-                  <td className="py-2 px-4 border">{subscription.postsUsed}</td>
-                  <td className="py-2 px-4 border">{subscription.contactsUsed}</td>
-                  <td className="py-2 px-4 border">
+                <tr key={subscription.subscriberId} className="border-b border-purple-200 hover:bg-purple-50">
+                  <td className="py-3 px-4">{subscription.userId}</td>
+                  <td className="py-3 px-4">{subscription.packageId}</td>
+                  <td className="py-3 px-4">{subscription.price}</td>
+                  <td className="py-3 px-4">{subscription.paymentType}</td>
+                  <td className="py-3 px-4">{new Date(subscription.subscriptionStartDate).toLocaleDateString()}</td>
+                  <td className="py-3 px-4">{new Date(subscription.subscriptionEndDate).toLocaleDateString()}</td>
+                  <td className="py-3 px-4">{subscription.status}</td>
+                  <td className="py-3 px-4">{subscription.role}</td>
+                  <td className="py-3 px-4">{subscription.postsUsed}</td>
+                  <td className="py-3 px-4">{subscription.contactsUsed}</td>
+                  <td className="py-3 px-4">
                     <button
                       onClick={() => handleDeactivateSubscription(subscription.userId, subscription.packageId)}
-                      className="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600"
+                      className="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600 transition duration-300"
                     >
                       Deactivate
                     </button>
@@ -105,7 +104,7 @@ const Subscriber = () => {
               ))
             ) : (
               <tr>
-                <td colSpan="10" className="py-2 px-4 border text-center">No subscriptions found.</td>
+                <td colSpan="10" className="py-3 px-4 text-center text-purple-600">No subscriptions found.</td>
               </tr>
             )}
           </tbody>

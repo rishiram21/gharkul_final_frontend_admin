@@ -12,6 +12,8 @@ import Amenities from './pages/Amenities';
 import Subscriber from './pages/Subscriber';
 import AddSubscription from './subpages/AddSubscription';
 import AddPackage from './subpages/AddPackage';
+import Customer from './pages/Customer';
+import ViewPropertyDetails from './subpages/ViewPropertyDetails';
 
 function App() {
   return (
@@ -23,9 +25,12 @@ function App() {
           <Route path="/signin" element={<Signin />} />
           {/* Pages */}
           <Route path="/allproperty" element={<AllProperty />} />
+          {/* <Route path="/allrequirement" element={<AllRqui />} /> */}
           <Route path="/amenities" element={<Amenities />} />
           <Route path="/package" element={<Package />} />
           <Route path="/subscriber" element={<Subscriber />} />
+          <Route path="/customer" element={<Customer />} />
+
 
 
 
@@ -33,6 +38,7 @@ function App() {
           <Route path="/addproperty" element={<AddProperty />} />
           <Route path="/addsubscription" element={<AddSubscription />} />
           <Route path="/addpackage" element={<AddPackage />} />
+          <Route path="/allproperty/:propertyId" element={<ViewPropertyDetails />} />
 
 
 

@@ -1,12 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 
 const AllProperty = () => {
   const [properties, setProperties] = useState([]);
   const [page, setPage] = useState(0);
   const [size, setSize] = useState(10);
   const [totalPages, setTotalPages] = useState(0);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchProperties = async () => {
@@ -37,54 +38,55 @@ const AllProperty = () => {
     }
   };
 
+  const handleViewDetails = (propertyId) => {
+    navigate(`/allproperty/${propertyId}`);
+  };
+
   return (
-    <div className="p-5">
+    <div className="p-5 bg-purple-50 min-h-screen">
       <div className="flex justify-between items-center mb-4">
-        <h1 className="text-2xl font-bold">All Properties</h1>
+        <h1 className="text-2xl font-bold text-purple-800">All Properties</h1>
         <Link
           to="/addproperty"
-          className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 inline-block"
+          className="px-4 py-2 bg-purple-600 text-white rounded hover:bg-purple-700 inline-block"
         >
           Add Property
         </Link>
       </div>
-      <div className="overflow-x-auto">
-        <table className="min-w-full bg-white border">
-          <thead>
+      <div className="overflow-x-auto bg-white rounded-lg shadow">
+        <table className="min-w-full">
+          <thead className="bg-purple-600 text-white">
             <tr>
-              <th className="py-2 px-4 border">Sr. No.</th>
-              <th className="py-2 px-4 border">Property Name</th>
-              <th className="py-2 px-4 border">Category</th>
-              <th className="py-2 px-4 border">Property For</th>
-              <th className="py-2 px-4 border">BHK Type</th>
-              <th className="py-2 px-4 border">Floor</th>
-              <th className="py-2 px-4 border">Area (sq. ft.)</th>
-              <th className="py-2 px-4 border">Address</th>
-              <th className="py-2 px-4 border">Expected Price</th>
-              <th className="py-2 px-4 border">Available From</th>
+              <th className="py-3 px-4 text-left">Sr. No.</th>
+              <th className="py-3 px-4 text-left">Property Name</th>
+              <th className="py-3 px-4 text-left">Posted By User ID</th>
+              <th className="py-3 px-4 text-left">Category</th>
+              <th className="py-3 px-4 text-left">Apartment Type</th>
+              <th className="py-3 px-4 text-left">Actions</th>
             </tr>
           </thead>
           <tbody>
             {properties.length > 0 ? (
               properties.map((property, index) => (
-                <tr key={property.propertyId}>
-                  <td className="py-2 px-4 border">{index + 1}</td>
-                  <td className="py-2 px-4 border">{property.propertyName}</td>
-                  <td className="py-2 px-4 border">{property.category}</td>
-                  <td className="py-2 px-4 border">{property.propertyFor}</td>
-                  <td className="py-2 px-4 border">{property.bhkType}</td>
-                  <td className="py-2 px-4 border">{property.floor} of {property.totalFloors}</td>
-                  <td className="py-2 px-4 border">{property.totalBuildUpArea}</td>
-                  <td className="py-2 px-4 border">
-                    {property.address?.street}, {property.address?.city}, {property.address?.state}, {property.address?.zipCode}
+                <tr key={property.propertyId} className="border-b border-purple-200 hover:bg-purple-50">
+                  <td className="py-3 px-4">{index + 1}</td>
+                  <td className="py-3 px-4">{property.propertyName}</td>
+                  <td className="py-3 px-4">{property.postedByUserId}</td>
+                  <td className="py-3 px-4">{property.category}</td>
+                  <td className="py-3 px-4">{property.apartmentType}</td>
+                  <td className="py-3 px-4">
+                    <button
+                      onClick={() => handleViewDetails(property.propertyId)}
+                      className="px-4 py-2 bg-purple-600 text-white rounded hover:bg-purple-700"
+                    >
+                      View Details
+                    </button>
                   </td>
-                  <td className="py-2 px-4 border">{property.expectedPrice}</td>
-                  <td className="py-2 px-4 border">{new Date(property.availableFrom).toLocaleDateString()}</td>
                 </tr>
               ))
             ) : (
               <tr>
-                <td colSpan="10" className="py-2 px-4 border text-center">No properties found.</td>
+                <td colSpan="6" className="py-3 px-4 text-center text-purple-600">No properties found.</td>
               </tr>
             )}
           </tbody>
@@ -94,15 +96,15 @@ const AllProperty = () => {
         <button
           onClick={handlePreviousPage}
           disabled={page === 0}
-          className="px-4 py-2 bg-gray-500 text-white rounded disabled:bg-gray-300"
+          className="px-4 py-2 bg-purple-600 text-white rounded disabled:bg-purple-300"
         >
           Previous
         </button>
-        <span className="px-4 py-2">Page {page + 1} of {totalPages}</span>
+        <span className="px-4 py-2 text-purple-800">Page {page + 1} of {totalPages}</span>
         <button
           onClick={handleNextPage}
           disabled={page >= totalPages - 1}
-          className="px-4 py-2 bg-gray-500 text-white rounded disabled:bg-gray-300"
+          className="px-4 py-2 bg-purple-600 text-white rounded disabled:bg-purple-300"
         >
           Next
         </button>
