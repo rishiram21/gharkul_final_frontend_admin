@@ -14,6 +14,7 @@ import AddSubscription from './subpages/AddSubscription';
 import AddPackage from './subpages/AddPackage';
 import Customer from './pages/Customer';
 import ViewPropertyDetails from './subpages/ViewPropertyDetails';
+import AllRequirement from './pages/AllRequirement';
 
 function App() {
   return (
@@ -25,7 +26,7 @@ function App() {
           <Route path="/signin" element={<Signin />} />
           {/* Pages */}
           <Route path="/allproperty" element={<AllProperty />} />
-          {/* <Route path="/allrequirement" element={<AllRqui />} /> */}
+          <Route path="/allrequirement" element={<AllRequirement />} />
           <Route path="/amenities" element={<Amenities />} />
           <Route path="/package" element={<Package />} />
           <Route path="/subscriber" element={<Subscriber />} />
