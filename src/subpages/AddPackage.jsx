@@ -1,20 +1,21 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { useNavigate, useParams, useLocation } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 
 const AddPackage = () => {
   const navigate = useNavigate();
   const { id } = useParams();
-  const location = useLocation();
 
   const [formData, setFormData] = useState({
     packageName: '',
+    description: '', // New field
     price: '',
     durationDays: '',
     status: 'ACTIVE',
     postLimit: '',
     contactLimit: '',
-    userRole: 'BROKER'
+    userRole: 'BROKER',
+    features: '', // New field
   });
 
   useEffect(() => {
@@ -47,7 +48,7 @@ const AddPackage = () => {
       } else {
         await axios.post(`${import.meta.env.VITE_BASE_URL}/api/packages/add`, formData);
       }
-      navigate('/packages');
+      navigate('/package');
     } catch (error) {
       console.error('Error saving package:', error);
       alert('Failed to save package');
@@ -65,6 +66,16 @@ const AddPackage = () => {
               type="text"
               name="packageName"
               value={formData.packageName}
+              onChange={handleChange}
+              required
+              className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700">Description</label>
+            <textarea
+              name="description"
+              value={formData.description}
               onChange={handleChange}
               required
               className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
@@ -115,6 +126,16 @@ const AddPackage = () => {
             />
           </div>
           <div>
+            <label className="block text-sm font-medium text-gray-700">Features</label>
+            <textarea
+              name="features"
+              value={formData.features}
+              onChange={handleChange}
+              required
+              className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+            />
+          </div>
+          <div>
             <label className="block text-sm font-medium text-gray-700">Status</label>
             <select
               name="status"
@@ -127,17 +148,18 @@ const AddPackage = () => {
             </select>
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700">User Role</label>
-            <select
-              name="userRole"
-              value={formData.userRole}
-              onChange={handleChange}
-              className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
-            >
-              <option value="BROKER">Broker</option>
-              <option value="OTHER_ROLE">Other Role</option>
-            </select>
-          </div>
+  <label className="block text-sm font-medium text-gray-700">User Role</label>
+  <select
+    name="userRole"
+    value={formData.userRole}
+    onChange={handleChange}
+    className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+  >
+    <option value="BROKER">Broker</option>
+    <option value="OWNER">Owner</option>
+  </select>
+</div>
+
         </div>
         <button
           type="submit"

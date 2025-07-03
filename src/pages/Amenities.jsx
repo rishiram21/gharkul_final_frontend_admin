@@ -64,21 +64,23 @@ const Amenities = () => {
           <table className="min-w-full">
             <thead className="bg-purple-600 text-white">
               <tr>
+                <th className="py-3 px-4 text-left">Sr. No.</th>
                 <th className="py-3 px-4 text-left">ID</th>
                 <th className="py-3 px-4 text-left">Name</th>
               </tr>
             </thead>
             <tbody>
               {amenities.length > 0 ? (
-                amenities.map((amenity) => (
+                amenities.map((amenity, index) => (
                   <tr key={amenity.amenityId} className="border-b border-purple-200 hover:bg-purple-50">
+                    <td className="py-3 px-4">{index + 1}</td>
                     <td className="py-3 px-4">{amenity.amenityId}</td>
                     <td className="py-3 px-4">{amenity.name}</td>
                   </tr>
                 ))
               ) : (
                 <tr>
-                  <td colSpan="2" className="py-3 px-4 text-center text-purple-600">No amenities found.</td>
+                  <td colSpan="3" className="py-3 px-4 text-center text-purple-600">No amenities found.</td>
                 </tr>
               )}
             </tbody>

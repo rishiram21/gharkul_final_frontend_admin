@@ -65,6 +65,7 @@ const Subscriber = () => {
         <table className="min-w-full">
           <thead className="bg-purple-600 text-white">
             <tr>
+              <th className="py-3 px-4 text-left">Sr. No.</th>
               <th className="py-3 px-4 text-left">User ID</th>
               <th className="py-3 px-4 text-left">Package ID</th>
               <th className="py-3 px-4 text-left">Price</th>
@@ -80,8 +81,9 @@ const Subscriber = () => {
           </thead>
           <tbody>
             {subscriptions.length > 0 ? (
-              subscriptions.map((subscription) => (
+              subscriptions.map((subscription, index) => (
                 <tr key={subscription.subscriberId} className="border-b border-purple-200 hover:bg-purple-50">
+                  <td className="py-3 px-4">{index + 1}</td>
                   <td className="py-3 px-4">{subscription.userId}</td>
                   <td className="py-3 px-4">{subscription.packageId}</td>
                   <td className="py-3 px-4">{subscription.price}</td>
@@ -104,7 +106,7 @@ const Subscriber = () => {
               ))
             ) : (
               <tr>
-                <td colSpan="10" className="py-3 px-4 text-center text-purple-600">No subscriptions found.</td>
+                <td colSpan="11" className="py-3 px-4 text-center text-purple-600">No subscriptions found.</td>
               </tr>
             )}
           </tbody>

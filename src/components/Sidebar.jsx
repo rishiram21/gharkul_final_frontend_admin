@@ -81,6 +81,11 @@ const Sidebar = ({ onClose, isMobile }) => {
   {(!isCollapsed || isMobile) && <span>Requirement</span>}
 </Link>
 
+<Link to="/package" className={navItemClass('/package')}>
+  <ClipboardList className="w-5 h-5 mr-3" />
+  {(!isCollapsed || isMobile) && <span>Package</span>}
+</Link>
+
 <Link to="/amenities" className={navItemClass('/amenities')}>
   <Hotel className="w-5 h-5 mr-3" />
   {(!isCollapsed || isMobile) && <span>Amenities</span>}

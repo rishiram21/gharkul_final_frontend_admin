@@ -79,11 +79,13 @@ const Package = () => {
             <thead className="bg-purple-50">
               <tr>
                 <th className="py-3 px-4 border-b border-gray-200 text-gray-800">Package Name</th>
+                <th className="py-3 px-4 border-b border-gray-200 text-gray-800">Description</th>
                 <th className="py-3 px-4 border-b border-gray-200 text-gray-800">Price</th>
                 <th className="py-3 px-4 border-b border-gray-200 text-gray-800">Duration Days</th>
                 <th className="py-3 px-4 border-b border-gray-200 text-gray-800">Status</th>
                 <th className="py-3 px-4 border-b border-gray-200 text-gray-800">Post Limit</th>
                 <th className="py-3 px-4 border-b border-gray-200 text-gray-800">Contact Limit</th>
+                <th className="py-3 px-4 border-b border-gray-200 text-gray-800">Features</th>
                 <th className="py-3 px-4 border-b border-gray-200 text-gray-800">User Role</th>
                 <th className="py-3 px-4 border-b border-gray-200 text-gray-800">Actions</th>
               </tr>
@@ -93,11 +95,13 @@ const Package = () => {
                 filteredPackages.map((pkg) => (
                   <tr key={pkg.id} className="hover:bg-purple-50">
                     <td className="py-3 px-4 border-b border-gray-200 text-gray-800">{pkg.packageName}</td>
+                    <td className="py-3 px-4 border-b border-gray-200 text-gray-800">{pkg.description}</td>
                     <td className="py-3 px-4 border-b border-gray-200 text-gray-800">{pkg.price}</td>
                     <td className="py-3 px-4 border-b border-gray-200 text-gray-800">{pkg.durationDays}</td>
                     <td className="py-3 px-4 border-b border-gray-200 text-gray-800">{pkg.status}</td>
                     <td className="py-3 px-4 border-b border-gray-200 text-gray-800">{pkg.postLimit}</td>
                     <td className="py-3 px-4 border-b border-gray-200 text-gray-800">{pkg.contactLimit}</td>
+                    <td className="py-3 px-4 border-b border-gray-200 text-gray-800">{pkg.features}</td>
                     <td className="py-3 px-4 border-b border-gray-200 text-gray-800">{pkg.userRole}</td>
                     <td className="py-3 px-4 border-b border-gray-200">
                       <Link
@@ -106,18 +110,18 @@ const Package = () => {
                       >
                         Edit
                       </Link>
-                      <button
+                      {/* <button
                         onClick={() => handleDelete(pkg.id)}
                         className="px-3 py-1 bg-red-500 text-white rounded hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-500"
                       >
                         Delete
-                      </button>
+                      </button> */}
                     </td>
                   </tr>
                 ))
               ) : (
                 <tr>
-                  <td colSpan="8" className="py-3 px-4 border-b text-center text-gray-800">No packages found.</td>
+                  <td colSpan="10" className="py-3 px-4 border-b text-center text-gray-800">No packages found.</td>
                 </tr>
               )}
             </tbody>
