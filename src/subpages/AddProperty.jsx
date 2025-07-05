@@ -1,7 +1,14 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useContext } from "react";
 import axios from "axios";
+import { useNavigate } from "react-router-dom";// Adjust the import path as necessary
 
-const AddProperty = () => {
+const PostProperty = () => {
+  const navigate = useNavigate();
+  const pinCodeRegex = /^[1-9][0-9]{0,5}$/; // allow partial match while typing
+
+
+
+  // State declarations remain the same
   const [enums, setEnums] = useState({
     propertyCategory: [],
     furnishedType: [],
@@ -17,7 +24,7 @@ const AddProperty = () => {
           `${import.meta.env.VITE_BASE_URL}/api/properties/all_enum`
         );
         setEnums(response.data);
-        console.log(response.data); // Check the fetched data
+        console.log(response.data);
       } catch (error) {
         console.error("Error fetching enums:", error);
       }
@@ -28,10 +35,10 @@ const AddProperty = () => {
   const [selectedFiles, setSelectedFiles] = useState([]);
 
   // Basic state
-  // const [city, setCity] = useState("");
   const [propertyType, setPropertyType] = useState("");
   const [subPropertyType, setSubPropertyType] = useState("");
   const [transactionType, setTransactionType] = useState("");
+
 
   // Property Details
   const [propertyName, setPropertyName] = useState("");
@@ -49,7 +56,7 @@ const AddProperty = () => {
   const [pincode, setPincode] = useState("");
 
   // Rental/Purchase Details
-  const [expectedRent, setExpectedRent] = useState("");
+  // const [expectedRent, setExpectedRent] = useState("");
   const [expectedDeposit, setExpectedDeposit] = useState("");
   const [monthlyMaintenance, setMonthlyMaintenance] = useState("");
   const [availableFrom, setAvailableFrom] = useState("");
@@ -57,6 +64,9 @@ const AddProperty = () => {
   const [furnishing, setFurnishing] = useState("");
   const [expectedPrice, setExpectedPrice] = useState("");
   const [description, setDescription] = useState("");
+  const [userPhoneNumber, setuserPhoneNumber] = useState('');
+  const [role, setrole] = useState('');
+  const [ownerName, setownerName] = useState('');
 
   // PG Specific
   const [roomType, setRoomType] = useState("");
@@ -72,32 +82,32 @@ const AddProperty = () => {
   const [plotArea, setPlotArea] = useState("");
   const [length, setLength] = useState("");
   const [width, setWidth] = useState("");
-  const [boundaryWall, setBoundaryWall] = useState(""); 
+  const [boundaryWall, setBoundaryWall] = useState("");
   const [amenities, setAmenities] = useState({});
+  const [selectedAmenities, setSelectedAmenities] = useState([]);
 
   useEffect(() => {
     const fetchAmenities = async () => {
       try {
-        const response = await fetch(`${import.meta.env.VITE_BASE_URL}/api/amenities/get`);
+        const response = await fetch(
+          `${import.meta.env.VITE_BASE_URL}/api/amenities/get`
+        );
         const data = await response.json();
-        const initialAmenities = {};
-        data.forEach(amenity => {
-          initialAmenities[amenity.name.toLowerCase().replace(" ", "")] = amenity.isAvailable;
-        });
-        setAmenities(initialAmenities);
+        setAmenities(data);
       } catch (error) {
-        console.error('Error fetching amenities:', error);
+        console.error("Error fetching amenities:", error);
       }
     };
 
     fetchAmenities();
   }, []);
 
-  const handleAmenityChange = (amenity) => {
-    setAmenities(prevState => ({
-      ...prevState,
-      [amenity]: !prevState[amenity]
-    }));
+  const handleAmenityChange = (amenityId) => {
+    setSelectedAmenities((prevState) =>
+      prevState.includes(amenityId)
+        ? prevState.filter((id) => id !== amenityId)
+        : [...prevState, amenityId]
+    );
   };
 
   const cities = ["Pune"];
@@ -114,145 +124,77 @@ const AddProperty = () => {
     console.log("Transaction Type:", type);
   };
 
-  // const handleSubmit = async (e) => {
-  //   e.preventDefault();
-
-  //   const formData = new FormData();
-
-  //   // Append property data as a JSON string
-  //   const propertyData = {
-  //     // city,
-  //     propertyType,
-  //     subPropertyType,
-  //     transactionType,
-  //     propertyName,
-  //     apartmentType,
-  //     bhkType,
-  //     floor,
-  //     totalFloor,
-  //     propertyAge,
-  //     builtUpArea,
-  //     carpetArea,
-  //     area,
-  //     state,
-  //     pincode,
-  //     expectedRent,
-  //     expectedDeposit,
-  //     monthlyMaintenance,
-  //     availableFrom,
-  //     preferredTenants,
-  //     furnishing,
-  //     expectedPrice,
-  //     description,
-  //     roomType,
-  //     pgGender,
-  //     preferredGuests,
-  //     gateClosingTime,
-  //     buildingType,
-  //     floorType,
-  //     plotArea,
-  //     length,
-  //     width,
-  //     boundaryWall,
-  //     amenities,
-  //   };
-
-  //   formData.append("property", JSON.stringify(propertyData));
-
-  //   // Append images
-  //   selectedFiles.forEach((file) => {
-  //     formData.append("images", file);
-  //   });
-
-  //   try {
-  //     const response = await axios.post(
-  //       `${import.meta.env.VITE_BASE_URL}/api/properties/add`,
-  //       formData,
-  //       {
-  //         headers: {
-  //           "Content-Type": "multipart/form-data",
-  //         },
-  //       }
-  //     );
-  //     console.log("Property posted successfully:", response.data);
-  //     alert("Property posted successfully!");
-  //   } catch (error) {
-  //     console.error("Error posting property:", error);
-  //     alert("Error posting property. Please try again.");
-  //   }
-  // };
-
   const handleSubmit = async (e) => {
-  e.preventDefault();
+    e.preventDefault();
 
-  const formData = new FormData();
+    const formData = new FormData();
 
-  // Construct the property data object according to the backend's expected format
-  const propertyData = {
-    postedByUserId: 1, // Replace with actual user ID from session or context
-    category: propertyType || "RESIDENTIAL",
-    propertyFor: transactionType || "RENT",
-    apartmentType: apartmentType || "FLAT",
-    propertyName: propertyName || "test",
-    bhkType: bhkType || "BHK_6",
-    floor: parseInt(floor) || 1,
-    totalFloors: parseInt(totalFloor) || 1,
-    totalBuildUpArea: parseFloat(builtUpArea) || 1,
-    carpetArea: parseFloat(carpetArea) || 1,
-    address: {
-      area: area || "test",
-      city: "Pune", // Replace with actual city from form or context
-      state: state || "test",
-      pinCode: pincode || "1",
-    },
-    buildingType: buildingType || "",
-    plotArea: parseFloat(plotArea) || 0,
-    length: parseFloat(length) || 0,
-    width: parseFloat(width) || 0,
-    boundaryWall: boundaryWall || "",
-    expectedPrice: parseFloat(expectedPrice) || 0,
-    deposit: parseFloat(expectedDeposit) || 1,
-    monthlyMaintenance: parseFloat(monthlyMaintenance) || 1,
-    availableFrom: new Date(availableFrom).toISOString() || new Date().toISOString(),
-    preferred_tenants: preferredTenants || "Anyone",
-    furnishedType: furnishing || "UNFURNISHED",
-    description: description || "test",
-    amenityIds: Object.keys(amenities)
-      .filter((amenity) => amenities[amenity])
-      .map((amenity) => parseInt(amenity.replace(/[^0-9]/g, "")))
-      .filter(amenityId => !isNaN(amenityId)), // Ensure no invalid amenity IDs
+
+    const propertyData = {
+      postedByUserId: 1, // Use the user ID from the context
+      category: propertyType || "RESIDENTIAL",
+      propertyFor: transactionType || "RENT",
+      apartmentType: apartmentType || "FLAT",
+      propertyName: propertyName || "test",
+      bhkType: bhkType || "BHK_6",
+      floor: parseInt(floor) || 1,
+      totalFloors: parseInt(totalFloor) || 1,
+      totalBuildUpArea: parseFloat(builtUpArea) || 1,
+      carpetArea: parseFloat(carpetArea) || 1,
+      address: {
+        area: area || "test",
+        city: "Pune",
+        state: state || "test",
+        pinCode: pincode || "1",
+      },
+      buildingType: buildingType || "",
+      plotArea: parseFloat(plotArea) || 0,
+      length: parseFloat(length) || 0,
+      width: parseFloat(width) || 0,
+      boundaryWall: boundaryWall || "",
+      expectedPrice: parseFloat(expectedPrice) || 0,
+      deposit: parseFloat(expectedDeposit) || 1,
+      monthlyMaintenance: parseFloat(monthlyMaintenance) || 1,
+      availableFrom:
+        new Date(availableFrom).toISOString() || new Date().toISOString(),
+      preferred_tenants: preferredTenants || "Anyone",
+      furnishedType: furnishing || "UNFURNISHED",
+      description: description || "test",
+      amenityIds: selectedAmenities,
+      userPhoneNumber: userPhoneNumber || "",
+      role:role || "",
+      ownerName:ownerName || ""
+    };
+
+    console.log("Property Data:", propertyData);
+
+    formData.append("property", JSON.stringify(propertyData));
+
+    selectedFiles.forEach((file) => {
+      formData.append("images", file);
+    });
+
+    try {
+      const response = await axios.post(
+        `${import.meta.env.VITE_BASE_URL}/api/properties/add`,
+        formData,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        }
+      );
+      console.log("Property posted successfully:", response.data);
+      alert("Property posted successfully!");
+      navigate('/allproperty');
+    } catch (error) {
+      console.error(
+        "Error posting property:",
+        error.response ? error.response.data : error.message
+      );
+      alert("Error posting property. Please try again.");
+    }
   };
-
-  // Log the property data to check its structure and values
-  console.log("Property Data:", propertyData);
-
-  // Append property data as a JSON string
-  formData.append("property", JSON.stringify(propertyData));
-
-  // Append images
-  selectedFiles.forEach((file) => {
-    formData.append("images", file);
-  });
-
-  try {
-    const response = await axios.post(
-      `${import.meta.env.VITE_BASE_URL}/api/properties/add`,
-      formData,
-      {
-        headers: {
-          "Content-Type": "multipart/form-data",
-        },
-      }
-    );
-    console.log("Property posted successfully:", response.data);
-    alert("Property posted successfully!");
-  } catch (error) {
-    console.error("Error posting property:", error.response ? error.response.data : error.message);
-    alert("Error posting property. Please try again.");
-  }
-};
-
-
 
   const handleFileChange = (event) => {
     const files = Array.from(event.target.files);
@@ -263,7 +205,7 @@ const AddProperty = () => {
     <div className="mb-6">
       <h2 className="text-xl font-semibold mb-4 flex items-center">
         <span className="w-8 h-8 bg-indigo-100 rounded-full flex items-center justify-center mr-3 text-indigo-600 font-bold text-sm">
-          5
+          6
         </span>
         Property Photos
       </h2>
@@ -271,8 +213,8 @@ const AddProperty = () => {
         <p className="mb-2">
           {propertyType === "RESIDENTIAL" &&
           (transactionType === "RENT" || transactionType === "SELL")
-            ? "Upload 1-4 photos"
-            : "Upload up to 10 photos"}
+            ? "Upload photo"
+            : "Upload photo"}
         </p>
         <input
           type="file"
@@ -280,13 +222,13 @@ const AddProperty = () => {
           onChange={handleFileChange}
           className="mb-4"
         />
-        <button
+        {/* <button
           type="button"
           onClick={handleSubmit}
           className="bg-indigo-600 text-white px-4 py-2 rounded-xl hover:bg-indigo-700 transition-colors"
         >
           Upload Media
-        </button>
+        </button> */}
         {selectedFiles.length > 0 && (
           <div className="mt-4">
             <p>Selected Files:</p>
@@ -303,7 +245,7 @@ const AddProperty = () => {
 
   const renderBasicSelection = () => (
     <div className="mb-6">
-      <h2 className="text-xl font-semibold mb-4">Basic Information</h2> 
+      <h2 className="text-xl font-semibold mb-4">Basic Information</h2>
 
       {/* Property Type Buttons */}
       <div className="flex flex-wrap gap-3 mb-4">
@@ -338,7 +280,7 @@ const AddProperty = () => {
               } else if (propertyType === "COMMERCIAL") {
                 return type === "RENT" || type === "SELL";
               } else if (propertyType === "PLOT") {
-                return type === "" || type === "RESELL";
+                return type === "SELL" || type === "RESELL";
               }
               return false;
             })
@@ -376,7 +318,7 @@ const AddProperty = () => {
       <div className="mb-6">
         <h2 className="text-xl font-semibold mb-4 flex items-center">
           <span className="w-8 h-8 bg-indigo-100 rounded-full flex items-center justify-center mr-3 text-indigo-600 font-bold text-sm">
-            1
+            2
           </span>
           Property Details
         </h2>
@@ -410,42 +352,26 @@ const AddProperty = () => {
                 ))}
               </div>
 
-              <select
-              className="w-full p-3 border border-gray-300 rounded-xl mb-3 focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all"
-              value={propertyAge}
-              onChange={(e) => setPropertyAge(e.target.value)}
-            >
-              <option value="">Age of Property</option>
-              <option value="<1">Less than 1 year</option>
-              <option value="3-5">3 to 5 years</option>
-              <option value="5-10">5 to 10 years</option>
-              <option value=">10">More than 10 years</option>
-            </select>
-
               <div className="flex space-x-3 mb-3">
                 <select
-                  className="w-1/3 p-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all"
-                  value={bhkType}
-                  onChange={(e) => setBhkType(e.target.value)}
-                >
-                  <option value="">BHK Type</option>
-                  {enums.bhkType.map((type) => (
-                    <option key={type} value={type}>
-                      {type}
-                    </option>
-                  ))}
-                </select>
+  className="w-1/3 p-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all"
+  value={bhkType}
+  onChange={(e) => setBhkType(e.target.value)}
+>
+  <option value="">BHK Type</option>
+  {enums.bhkType.map((type) => {
+    const displayText = type
+      .replace('BHK_', '')      // Remove prefix
+      .replace('_', '.')        // Replace first underscore with decimal
+    return (
+      <option key={type} value={type}>
+        {`BHK ${displayText}`}
+      </option>
+    );
+  })}
+</select>
 
-                <input
-                  type="number"
-                  className="w-1/3 p-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all"
-                  placeholder="Floor"
-                  value={floor}
-                  onChange={(e) => setFloor(e.target.value)}
-                  min={1}
-                />
-
-                <input
+ <input
                   type="number"
                   className="w-1/3 p-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all"
                   placeholder="Total Floors"
@@ -453,6 +379,24 @@ const AddProperty = () => {
                   onChange={(e) => setTotalFloor(e.target.value)}
                   min={1}
                 />
+
+
+               <input
+  type="number"
+  className="w-1/3 p-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all"
+  placeholder="Floor"
+  value={floor}
+  onChange={(e) => {
+    const val = parseInt(e.target.value, 10);
+    if (!isNaN(val) && val <= totalFloor) {
+      setFloor(val);
+    }
+  }}
+  min={0}
+/>
+
+
+               
               </div>
               <div className="flex space-x-3 mb-3">
                 <input
@@ -463,12 +407,18 @@ const AddProperty = () => {
                   onChange={(e) => setBuiltUpArea(e.target.value)}
                 />
                 <input
-                  type="text"
-                  placeholder="Carpet Area (sq.ft)"
-                  className="w-1/2 p-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all"
-                  value={carpetArea}
-                  onChange={(e) => setCarpetArea(e.target.value)}
-                />
+  type="text"
+  placeholder="Carpet Area (sq.ft)"
+  className="w-1/2 p-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all"
+  value={carpetArea}
+  onChange={(e) => {
+    const val = e.target.value;
+    if (!isNaN(val) && parseFloat(val) < parseFloat(builtUpArea)) {
+      setCarpetArea(val);
+    }
+  }}
+/>
+
               </div>
             </>
           )}
@@ -671,7 +621,7 @@ const AddProperty = () => {
       <div className="mb-6">
         <h2 className="text-xl font-semibold mb-4 flex items-center">
           <span className="w-8 h-8 bg-indigo-100 rounded-full flex items-center justify-center mr-3 text-indigo-600 font-bold text-sm">
-            2
+            3
           </span>
           Location Details
         </h2>
@@ -692,13 +642,20 @@ const AddProperty = () => {
             value={state}
             onChange={(e) => setState(e.target.value)}
           />
-          <input
-            type="text"
-            placeholder="Pin Code"
-            className="w-1/2 p-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all"
-            value={pincode}
-            onChange={(e) => setPincode(e.target.value)}
-          />
+
+<input
+  type="text"
+  placeholder="Pin Code"
+  className="w-1/2 p-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all"
+  value={pincode}
+  onChange={(e) => {
+    const val = e.target.value;
+    if (val === '' || pinCodeRegex.test(val)) {
+      setPincode(val);
+    }
+  }}
+/>
+
         </div>
       </div>
     );
@@ -724,7 +681,7 @@ const AddProperty = () => {
       <div className="mb-6">
         <h2 className="text-xl font-semibold mb-4 flex items-center">
           <span className="w-8 h-8 bg-indigo-100 rounded-full flex items-center justify-center mr-3 text-indigo-600 font-bold text-sm">
-            3
+            4
           </span>
           {propertyType === "RESIDENTIAL" &&
             transactionType === "RENT" &&
@@ -751,8 +708,8 @@ const AddProperty = () => {
                 type="text"
                 placeholder="Expected Rent (INR)"
                 className="w-1/2 p-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all"
-                value={expectedRent}
-                onChange={(e) => setExpectedRent(e.target.value)}
+                value={expectedPrice}
+                onChange={(e) => setExpectedPrice(e.target.value)}
               />
               <input
                 type="text"
@@ -771,13 +728,18 @@ const AddProperty = () => {
               onChange={(e) => setMonthlyMaintenance(e.target.value)}
             />
 
-            <input
-              type="date"
-              placeholder="Available From"
-              className="w-full p-3 border border-gray-300 rounded-xl mb-3 focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all"
-              value={availableFrom}
-              onChange={(e) => setAvailableFrom(e.target.value)}
-            />
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+  Available From
+</label>
+<input
+  type="date"
+  placeholder="Available From"
+  className="w-full p-3 border border-gray-300 rounded-xl mb-3 focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all"
+  value={availableFrom}
+  onChange={(e) => setAvailableFrom(e.target.value)}
+  min={new Date().toISOString().split("T")[0]} // this disables past dates
+/>
+
 
             <div className="flex flex-wrap gap-2 mb-3">
               <span className="text-sm text-gray-600 w-full mb-2">
@@ -845,14 +807,18 @@ const AddProperty = () => {
               value={expectedPrice}
               onChange={(e) => setExpectedPrice(e.target.value)}
             />
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+  Available From
+</label>
+<input
+  type="date"
+  placeholder="Available From"
+  className="w-full p-3 border border-gray-300 rounded-xl mb-3 focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all"
+  value={availableFrom}
+  onChange={(e) => setAvailableFrom(e.target.value)}
+  min={new Date().toISOString().split("T")[0]} // this disables past dates
+/>
 
-            <input
-              type="date"
-              placeholder="Available From"
-              className="w-full p-3 border border-gray-300 rounded-xl mb-3 focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all"
-              value={availableFrom}
-              onChange={(e) => setAvailableFrom(e.target.value)}
-            />
 
             <textarea
               placeholder="Description"
@@ -873,8 +839,8 @@ const AddProperty = () => {
                   type="text"
                   placeholder="Expected Rent (INR)"
                   className="w-1/2 p-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all"
-                  value={expectedRent}
-                  onChange={(e) => setExpectedRent(e.target.value)}
+                  value={expectedPrice}
+                  onChange={(e) => setExpectedPrice(e.target.value)}
                 />
                 <input
                   type="text"
@@ -884,32 +850,6 @@ const AddProperty = () => {
                   onChange={(e) => setExpectedDeposit(e.target.value)}
                 />
               </div>
-
-              {/* <div className="flex flex-wrap gap-2 mb-3">
-                <span className="text-sm text-gray-600 w-full mb-2">
-                  Amenities:
-                </span>
-                {["TV", "AC", "Geyser", "Cupboard", "Attached Bathroom"].map(
-                  (amenity) => (
-                    <button
-                      key={amenity}
-                      type="button"
-                      className={`px-3 py-2 rounded-xl text-sm font-medium transition-all duration-200 ${
-                        amenities[amenity.toLowerCase().replace(" ", "")]
-                          ? "bg-indigo-600 text-white shadow-lg"
-                          : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-                      }`}
-                      onClick={() =>
-                        handleAmenityChange(
-                          amenity.toLowerCase().replace(" ", "")
-                        )
-                      }
-                    >
-                      {amenity}
-                    </button>
-                  )
-                )}
-              </div> */}
 
               <div className="flex flex-wrap gap-2 mb-3">
                 <span className="text-sm text-gray-600 w-full mb-2">
@@ -951,21 +891,27 @@ const AddProperty = () => {
                 ))}
               </div>
 
-              <input
-                type="date"
-                placeholder="Available From"
-                className="w-full p-3 border border-gray-300 rounded-xl mb-3 focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all"
-                value={availableFrom}
-                onChange={(e) => setAvailableFrom(e.target.value)}
-              />
+             <label className="block text-sm font-medium text-gray-700 mb-1">
+  Available From
+</label>
+<input
+  type="date"
+  placeholder="Available From"
+  className="w-full p-3 border border-gray-300 rounded-xl mb-3 focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all"
+  value={availableFrom}
+  onChange={(e) => setAvailableFrom(e.target.value)}
+  min={new Date().toISOString().split("T")[0]} // this disables past dates
+/>
 
-              <input
-                type="time"
+
+
+              {/* <input
+                type="text"
                 placeholder="Gate Closing Time"
                 className="w-full p-3 border border-gray-300 rounded-xl mb-3 focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all"
                 value={gateClosingTime}
                 onChange={(e) => setGateClosingTime(e.target.value)}
-              />
+              /> */}
             </>
           )}
 
@@ -977,8 +923,8 @@ const AddProperty = () => {
                 type="text"
                 placeholder="Expected Rent (INR)"
                 className="w-1/2 p-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all"
-                value={expectedRent}
-                onChange={(e) => setExpectedRent(e.target.value)}
+                value={expectedPrice}
+                onChange={(e) => setExpectedPrice(e.target.value)}
               />
               <input
                 type="text"
@@ -996,35 +942,6 @@ const AddProperty = () => {
               value={availableFrom}
               onChange={(e) => setAvailableFrom(e.target.value)}
             />
-
-            {/* <div className="flex flex-wrap gap-2 mb-3">
-              <span className="text-sm text-gray-600 w-full mb-2">
-                Amenities:
-              </span>
-              {[
-                "Power Backup",
-                "Lift",
-                "Parking",
-                "Washroom",
-                "Security",
-                "Wifi",
-              ].map((amenity) => (
-                <button
-                  key={amenity}
-                  type="button"
-                  className={`px-3 py-2 rounded-xl text-sm font-medium transition-all duration-200 ${
-                    amenities[amenity.toLowerCase().replace(" ", "")]
-                      ? "bg-indigo-600 text-white shadow-lg"
-                      : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-                  }`}
-                  onClick={() =>
-                    handleAmenityChange(amenity.toLowerCase().replace(" ", ""))
-                  }
-                >
-                  {amenity}
-                </button>
-              ))}
-            </div> */}
           </>
         )}
 
@@ -1054,28 +971,6 @@ const AddProperty = () => {
               value={description}
               onChange={(e) => setDescription(e.target.value)}
             />
-
-            {/* <div className="flex flex-wrap gap-2 mb-3">
-              <span className="text-sm text-gray-600 w-full mb-2">
-                Amenities:
-              </span>
-              {["Water Supply", "Electric Connection"].map((amenity) => (
-                <button
-                  key={amenity}
-                  type="button"
-                  className={`px-3 py-2 rounded-xl text-sm font-medium transition-all duration-200 ${
-                    amenities[amenity.toLowerCase().replace(" ", "")]
-                      ? "bg-indigo-600 text-white shadow-lg"
-                      : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-                  }`}
-                  onClick={() =>
-                    handleAmenityChange(amenity.toLowerCase().replace(" ", ""))
-                  }
-                >
-                  {amenity}
-                </button>
-              ))}
-            </div> */}
           </>
         )}
       </div>
@@ -1089,31 +984,91 @@ const AddProperty = () => {
       <div className="mb-6">
         <h2 className="text-xl font-semibold mb-4 flex items-center">
           <span className="w-8 h-8 bg-indigo-100 rounded-full flex items-center justify-center mr-3 text-indigo-600 font-bold text-sm">
-            4
+            5
           </span>
           Amenities
         </h2>
         <div className="flex flex-wrap gap-3">
-          {Object.keys(amenities).map((amenity) => (
+          {amenities.map((amenity) => (
             <button
-              key={amenity}
+              key={amenity.amenityId}
               type="button"
               className={`px-4 py-2 rounded-xl text-sm font-medium transition-all duration-200 ${
-                amenities[amenity]
+                selectedAmenities.includes(amenity.amenityId)
                   ? "bg-indigo-600 text-white shadow-lg transform scale-105"
                   : "bg-gray-100 text-gray-700 hover:bg-gray-200 hover:shadow-md"
               }`}
-              onClick={() => handleAmenityChange(amenity)}
+              onClick={() => handleAmenityChange(amenity.amenityId)}
             >
-              {amenity
-                .replace(/([A-Z])/g, " $1")
-                .replace(/^./, (str) => str.toUpperCase())}
+              {amenity.name}
             </button>
           ))}
         </div>
       </div>
     );
   };
+
+
+  const renderUserDetailsForm = () => {
+  return (
+    <div className="space-y-6 mb-6">
+      {/* Phone Number */}
+      <div>
+        <label htmlFor="phone" className="block text-sm font-medium text-gray-700 mb-2">
+          Enter Mobile Number <span className="text-red-500">*</span>
+        </label>
+        <input
+          id="phone"
+          type="tel"
+          value={userPhoneNumber}
+          onChange={(e) => setuserPhoneNumber(e.target.value)}
+          placeholder="e.g. 9876543210"
+          className="w-full px-4 py-2 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all"
+          maxLength={10}
+          required
+        />
+      </div>
+
+      {/* Username */}
+      <div>
+        <label htmlFor="username" className="block text-sm font-medium text-gray-700 mb-2">
+          Enter Your Name <span className="text-red-500">*</span>
+        </label>
+        <input
+          id="username"
+          type="text"
+          value={ownerName}
+          onChange={(e) => setownerName(e.target.value)}
+          placeholder="e.g. Rishy"
+          className="w-full px-4 py-2 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all"
+          required
+        />
+      </div>
+
+      {/* User Role */}
+      <div>
+        <label htmlFor="role" className="block text-sm font-medium text-gray-700 mb-2">
+          Select Your Role <span className="text-red-500">*</span>
+        </label>
+        <select
+          id="role"
+          value={role}
+          onChange={(e) => setrole(e.target.value)}
+          className="w-full px-4 py-2 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all"
+          required
+        >
+          <option value="">-- Select Role --</option>
+          <option value="OWNER">Owner</option>
+          <option value="AGENT">Broker</option>
+        </select>
+      </div>
+    </div>
+  );
+};
+
+
+
+
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 py-6 px-4 lg:py-12">
@@ -1133,8 +1088,8 @@ const AddProperty = () => {
             {renderLocationDetails()}
             {renderPricingDetails()}
             {renderAmenities()}
+            {renderUserDetailsForm()}
             {renderPropertyPhotos()}
-
             <button
               type="submit"
               className="w-full bg-gradient-to-r from-indigo-600 to-purple-600 text-white py-4 px-6 rounded-xl text-lg font-semibold hover:from-indigo-700 hover:to-purple-700 transform hover:scale-105 transition-all duration-200 shadow-lg hover:shadow-xl"
@@ -1148,4 +1103,4 @@ const AddProperty = () => {
   );
 };
 
-export default AddProperty;
+export default PostProperty;

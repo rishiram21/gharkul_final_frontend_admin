@@ -21,9 +21,9 @@ function App() {
     <Router>
       <Layout>
         <Routes>
-          <Route path="/" element={<Dashboard />} />
+          <Route path="/" element={<Signin />} />
+          <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/users" element={<Users />} />
-          <Route path="/signin" element={<Signin />} />
           {/* Pages */}
           <Route path="/allproperty" element={<AllProperty />} />
           <Route path="/allrequirement" element={<AllRequirement />} />

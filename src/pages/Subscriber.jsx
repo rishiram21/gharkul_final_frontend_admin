@@ -1,28 +1,39 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
 import { Link } from 'react-router-dom';
+import { useDashboard } from '../context/DashboardContext'; // Updated context path
 
 const Subscriber = () => {
   const [subscriptions, setSubscriptions] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const { updateDashboardData } = useDashboard();
+  const hasFetched = useRef(false);
 
   useEffect(() => {
-    const fetchSubscriptions = async () => {
-      setLoading(true);
-      try {
-        const response = await axios.get(`${import.meta.env.VITE_BASE_URL}/api/subscriptions/get`);
-        setSubscriptions(response.data);
-      } catch (error) {
-        console.error('Error fetching subscriptions:', error);
-        setError('Failed to fetch subscriptions');
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchSubscriptions();
+    if (!hasFetched.current) {
+      hasFetched.current = true;
+      fetchSubscriptions();
+    }
   }, []);
+
+  const fetchSubscriptions = async () => {
+    setLoading(true);
+    try {
+      const response = await axios.get(`${import.meta.env.VITE_BASE_URL}/api/subscriptions/get`);
+      const data = response.data || [];
+      setSubscriptions(data);
+
+      // Update Dashboard KPI
+      updateDashboardData({ subscriberCount: data.length });
+    } catch (error) {
+      console.error('Error fetching subscriptions:', error);
+      setError('Failed to fetch subscriptions');
+      updateDashboardData({ subscriberCount: 0 });
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handleDeactivateSubscription = async (userId, packageId) => {
     if (window.confirm('Are you sure you want to deactivate this subscription?')) {
@@ -34,9 +45,13 @@ const Subscriber = () => {
           { params: { userId, packageId } }
         );
         alert(response.data);
-        setSubscriptions(subscriptions.map(sub =>
-          sub.userId === userId && sub.packageId === packageId ? { ...sub, status: 'INACTIVE' } : sub
-        ));
+
+        const updated = subscriptions.map(sub =>
+          sub.userId === userId && sub.packageId === packageId
+            ? { ...sub, status: 'INACTIVE' }
+            : sub
+        );
+        setSubscriptions(updated);
       } catch (error) {
         console.error('Error deactivating subscription:', error);
         setError('Failed to deactivate subscription');
@@ -53,12 +68,12 @@ const Subscriber = () => {
     <div className="p-5 bg-purple-50 min-h-screen">
       <div className="flex justify-between items-center mb-4">
         <h1 className="text-2xl font-bold text-purple-800">Manage Subscriptions</h1>
-        <Link
+        {/* <Link
           to="/addsubscription"
           className="px-4 py-2 bg-purple-600 text-white rounded hover:bg-purple-700 transition duration-300"
         >
           Add Subscription
-        </Link>
+        </Link> */}
       </div>
 
       <div className="overflow-x-auto bg-white rounded-lg shadow">
@@ -86,17 +101,23 @@ const Subscriber = () => {
                   <td className="py-3 px-4">{index + 1}</td>
                   <td className="py-3 px-4">{subscription.userId}</td>
                   <td className="py-3 px-4">{subscription.packageId}</td>
-                  <td className="py-3 px-4">{subscription.price}</td>
+                  <td className="py-3 px-4">₹{subscription.price}</td>
                   <td className="py-3 px-4">{subscription.paymentType}</td>
-                  <td className="py-3 px-4">{new Date(subscription.subscriptionStartDate).toLocaleDateString()}</td>
-                  <td className="py-3 px-4">{new Date(subscription.subscriptionEndDate).toLocaleDateString()}</td>
+                  <td className="py-3 px-4">
+                    {new Date(subscription.subscriptionStartDate).toLocaleDateString()}
+                  </td>
+                  <td className="py-3 px-4">
+                    {new Date(subscription.subscriptionEndDate).toLocaleDateString()}
+                  </td>
                   <td className="py-3 px-4">{subscription.status}</td>
                   <td className="py-3 px-4">{subscription.role}</td>
                   <td className="py-3 px-4">{subscription.postsUsed}</td>
                   <td className="py-3 px-4">{subscription.contactsUsed}</td>
                   <td className="py-3 px-4">
                     <button
-                      onClick={() => handleDeactivateSubscription(subscription.userId, subscription.packageId)}
+                      onClick={() =>
+                        handleDeactivateSubscription(subscription.userId, subscription.packageId)
+                      }
                       className="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600 transition duration-300"
                     >
                       Deactivate
@@ -106,7 +127,9 @@ const Subscriber = () => {
               ))
             ) : (
               <tr>
-                <td colSpan="11" className="py-3 px-4 text-center text-purple-600">No subscriptions found.</td>
+                <td colSpan="12" className="py-3 px-4 text-center text-purple-600">
+                  No subscriptions found.
+                </td>
               </tr>
             )}
           </tbody>

@@ -1,21 +1,30 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
+import { useDashboard } from '../context/DashboardContext'; // adjust path as needed
 
 const Amenities = () => {
   const [amenities, setAmenities] = useState([]);
   const [newAmenityName, setNewAmenityName] = useState('');
+  const { updateDashboardData } = useDashboard();
+  const hasFetched = useRef(false);
+
+  const fetchAmenities = async () => {
+    try {
+      const response = await axios.get(`${import.meta.env.VITE_BASE_URL}/api/amenities/get`);
+      setAmenities(response.data || []);
+      updateDashboardData({ amenityCount: (response.data || []).length });
+    } catch (error) {
+      console.error('Error fetching amenities:', error);
+      setAmenities([]);
+      updateDashboardData({ amenityCount: 0 });
+    }
+  };
 
   useEffect(() => {
-    const fetchAmenities = async () => {
-      try {
-        const response = await axios.get(`${import.meta.env.VITE_BASE_URL}/api/amenities/get`);
-        setAmenities(response.data);
-      } catch (error) {
-        console.error('Error fetching amenities:', error);
-      }
-    };
-
-    fetchAmenities();
+    if (!hasFetched.current) {
+      hasFetched.current = true;
+      fetchAmenities();
+    }
   }, []);
 
   const handleAddAmenity = async () => {
@@ -26,9 +35,11 @@ const Amenities = () => {
 
     try {
       const response = await axios.post(`${import.meta.env.VITE_BASE_URL}/api/amenities/add`, {
-        name: newAmenityName.trim()
+        name: newAmenityName.trim(),
       });
-      setAmenities([...amenities, response.data]);
+      const updatedAmenities = [...amenities, response.data];
+      setAmenities(updatedAmenities);
+      updateDashboardData({ amenityCount: updatedAmenities.length });
       setNewAmenityName('');
     } catch (error) {
       console.error('Error adding amenity:', error);
@@ -40,7 +51,8 @@ const Amenities = () => {
     <div className="p-5 bg-purple-50 min-h-screen">
       <h1 className="text-2xl font-bold mb-4 text-purple-800">Manage Amenities</h1>
 
-      <div className="mb-4">
+      {/* Add Amenity */}
+      <div className="mb-6">
         <div className="flex gap-2">
           <input
             type="text"
@@ -58,6 +70,7 @@ const Amenities = () => {
         </div>
       </div>
 
+      {/* Amenities List */}
       <div>
         <h2 className="text-xl font-semibold mb-2 text-purple-700">Amenities List</h2>
         <div className="overflow-x-auto bg-white rounded-lg shadow">
@@ -80,7 +93,9 @@ const Amenities = () => {
                 ))
               ) : (
                 <tr>
-                  <td colSpan="3" className="py-3 px-4 text-center text-purple-600">No amenities found.</td>
+                  <td colSpan="3" className="py-3 px-4 text-center text-purple-600">
+                    No amenities found.
+                  </td>
                 </tr>
               )}
             </tbody>

@@ -16,10 +16,10 @@ const Sidebar = ({ onClose, isMobile }) => {
   const location = useLocation();
   const [isCollapsed, setIsCollapsed] = useState(false);
 
-  // Auto-close on route change (for mobile)
+  // Auto-close only if on mobile and sidebar is open
   useEffect(() => {
     if (isMobile && onClose) {
-      onClose();
+      onClose(); // Close sidebar only on mobile route change
     }
   }, [location.pathname]);
 
@@ -30,7 +30,6 @@ const Sidebar = ({ onClose, isMobile }) => {
         : 'text-purple-300 hover:bg-gray-800 hover:text-white'
     }`;
 
-  // Decide width class
   const sidebarWidth = isMobile ? 'w-64' : isCollapsed ? 'w-20' : 'w-64';
 
   return (
@@ -45,7 +44,6 @@ const Sidebar = ({ onClose, isMobile }) => {
           <span className="text-xl font-bold">Navigation</span>
         ) : null}
 
-        {/* Collapse for desktop */}
         {!isMobile && (
           <button
             onClick={() => setIsCollapsed(!isCollapsed)}
@@ -55,7 +53,6 @@ const Sidebar = ({ onClose, isMobile }) => {
           </button>
         )}
 
-        {/* Close for mobile */}
         {isMobile && (
           <button
             onClick={onClose}
@@ -67,43 +64,44 @@ const Sidebar = ({ onClose, isMobile }) => {
       </div>
 
       <nav className="mt-4 space-y-2">
-        <Link to="/" className={navItemClass('/')}>
+        <Link to="/dashboard" className={navItemClass('/dashboard')}>
           <LayoutDashboard className="w-5 h-5 mr-3" />
           {(!isCollapsed || isMobile) && <span>Dashboard</span>}
         </Link>
+
         <Link to="/allproperty" className={navItemClass('/allproperty')}>
-  <Home className="w-5 h-5 mr-3" />
-  {(!isCollapsed || isMobile) && <span>Property</span>}
-</Link>
+          <Home className="w-5 h-5 mr-3" />
+          {(!isCollapsed || isMobile) && <span>Property</span>}
+        </Link>
 
-<Link to="/allrequirement" className={navItemClass('/allrequirement')}>
-  <ClipboardList className="w-5 h-5 mr-3" />
-  {(!isCollapsed || isMobile) && <span>Requirement</span>}
-</Link>
+        <Link to="/allrequirement" className={navItemClass('/allrequirement')}>
+          <ClipboardList className="w-5 h-5 mr-3" />
+          {(!isCollapsed || isMobile) && <span>Requirement</span>}
+        </Link>
 
-<Link to="/package" className={navItemClass('/package')}>
-  <ClipboardList className="w-5 h-5 mr-3" />
-  {(!isCollapsed || isMobile) && <span>Package</span>}
-</Link>
+        <Link to="/package" className={navItemClass('/package')}>
+          <ClipboardList className="w-5 h-5 mr-3" />
+          {(!isCollapsed || isMobile) && <span>Package</span>}
+        </Link>
 
-<Link to="/amenities" className={navItemClass('/amenities')}>
-  <Hotel className="w-5 h-5 mr-3" />
-  {(!isCollapsed || isMobile) && <span>Amenities</span>}
-</Link>
+        <Link to="/amenities" className={navItemClass('/amenities')}>
+          <Hotel className="w-5 h-5 mr-3" />
+          {(!isCollapsed || isMobile) && <span>Amenities</span>}
+        </Link>
 
-<Link to="/subscriber" className={navItemClass('/subscriber')}>
-  <UserPlus className="w-5 h-5 mr-3" />
-  {(!isCollapsed || isMobile) && <span>Subscriber</span>}
-</Link>
+        <Link to="/subscriber" className={navItemClass('/subscriber')}>
+          <UserPlus className="w-5 h-5 mr-3" />
+          {(!isCollapsed || isMobile) && <span>Subscriber</span>}
+        </Link>
 
-<Link to="/customer" className={navItemClass('/customer')}>
-  <Users className="w-5 h-5 mr-3" />
-  {(!isCollapsed || isMobile) && <span>Customer</span>}
-</Link>
-
+        <Link to="/customer" className={navItemClass('/customer')}>
+          <Users className="w-5 h-5 mr-3" />
+          {(!isCollapsed || isMobile) && <span>Customer</span>}
+        </Link>
       </nav>
     </div>
   );
 };
 
 export default Sidebar;
+  
