@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
-import { useDashboard } from '../context/DashboardContext'; // adjust path as needed
+import { useDashboard } from '../context/DashboardContext';
+import { Building, Plus } from 'lucide-react';
 
 const Amenities = () => {
   const [amenities, setAmenities] = useState([]);
@@ -32,7 +33,6 @@ const Amenities = () => {
       alert('Amenity name is required');
       return;
     }
-
     try {
       const response = await axios.post(`${import.meta.env.VITE_BASE_URL}/api/amenities/add`, {
         name: newAmenityName.trim(),
@@ -48,58 +48,85 @@ const Amenities = () => {
   };
 
   return (
-    <div className="p-5 bg-purple-50 min-h-screen">
-      <h1 className="text-2xl font-bold mb-4 text-purple-800">Manage Amenities</h1>
-
-      {/* Add Amenity */}
-      <div className="mb-6">
-        <div className="flex gap-2">
-          <input
-            type="text"
-            value={newAmenityName}
-            onChange={(e) => setNewAmenityName(e.target.value)}
-            placeholder="Enter amenity name"
-            className="px-4 py-2 border rounded flex-grow focus:outline-none focus:ring-2 focus:ring-purple-500"
-          />
-          <button
-            onClick={handleAddAmenity}
-            className="px-4 py-2 bg-purple-600 text-white rounded hover:bg-purple-700 transition duration-300"
-          >
-            Add Amenity
-          </button>
+    <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-white to-purple-50">
+      {/* Header Section */}
+      <div className="bg-white shadow-sm border-b border-gray-200">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex justify-between items-center py-6">
+            <div className="flex items-center space-x-3">
+              <div className="p-2 bg-gradient-to-r from-indigo-600 to-purple-600 rounded-lg">
+                <Building className="w-8 h-8 text-white" />
+              </div>
+              <div>
+                <h1 className="text-3xl font-bold text-gray-900">Manage Amenities</h1>
+                <p className="text-sm text-gray-600">View and add amenities</p>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
 
-      {/* Amenities List */}
-      <div>
-        <h2 className="text-xl font-semibold mb-2 text-purple-700">Amenities List</h2>
-        <div className="overflow-x-auto bg-white rounded-lg shadow">
-          <table className="min-w-full">
-            <thead className="bg-purple-600 text-white">
-              <tr>
-                <th className="py-3 px-4 text-left">Sr. No.</th>
-                <th className="py-3 px-4 text-left">ID</th>
-                <th className="py-3 px-4 text-left">Name</th>
-              </tr>
-            </thead>
-            <tbody>
-              {amenities.length > 0 ? (
-                amenities.map((amenity, index) => (
-                  <tr key={amenity.amenityId} className="border-b border-purple-200 hover:bg-purple-50">
-                    <td className="py-3 px-4">{index + 1}</td>
-                    <td className="py-3 px-4">{amenity.amenityId}</td>
-                    <td className="py-3 px-4">{amenity.name}</td>
-                  </tr>
-                ))
-              ) : (
-                <tr>
-                  <td colSpan="3" className="py-3 px-4 text-center text-purple-600">
-                    No amenities found.
-                  </td>
+      {/* Main Content */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {/* Add Amenity */}
+        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-8">
+          <div className="flex gap-2">
+            <input
+              type="text"
+              value={newAmenityName}
+              onChange={(e) => setNewAmenityName(e.target.value)}
+              placeholder="Enter amenity name"
+              className="flex-grow px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
+            />
+            <button
+              onClick={handleAddAmenity}
+              className="inline-flex items-center px-6 py-3 bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-semibold rounded-lg shadow-md hover:from-indigo-700 hover:to-purple-700 transition-all duration-200 transform hover:scale-105"
+            >
+              <Plus className="w-5 h-5 mr-2" />
+              Add Amenity
+            </button>
+          </div>
+        </div>
+
+        {/* Amenities List */}
+        <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+          <div className="overflow-x-auto">
+            <table className="w-full">
+              <thead>
+                <tr className="bg-gradient-to-r from-gray-50 to-gray-100 border-b border-gray-200">
+                  <th className="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Sr. No.</th>
+                  {/* <th className="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">ID</th> */}
+                  <th className="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Name</th>
                 </tr>
-              )}
-            </tbody>
-          </table>
+              </thead>
+              <tbody className="divide-y divide-gray-200">
+                {amenities.length > 0 ? (
+                  amenities.map((amenity, index) => (
+                    <tr key={amenity.amenityId} className="hover:bg-gray-50 transition-colors duration-150">
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <div className="flex items-center justify-center w-8 h-8 bg-indigo-100 text-indigo-600 rounded-full text-sm font-semibold">
+                          {index + 1}
+                        </div>
+                      </td>
+                      {/* <td className="px-6 py-4">{amenity.amenityId}</td> */}
+                      <td className="px-6 py-4">{amenity.name}</td>
+                    </tr>
+                  ))
+                ) : (
+                  <tr>
+                    <td colSpan="3" className="text-center py-12">
+                      <div className="flex flex-col items-center space-y-3">
+                        <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center">
+                          <Building className="w-8 h-8 text-gray-400" />
+                        </div>
+                        <div className="text-gray-600">No amenities found</div>
+                      </div>
+                    </td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
+          </div>
         </div>
       </div>
     </div>

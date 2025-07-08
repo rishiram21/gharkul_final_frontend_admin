@@ -1,12 +1,13 @@
 import React, { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
-import { Link } from 'react-router-dom';
-import { useDashboard } from '../context/DashboardContext'; // Updated context path
+import { Building, AlertCircle, Search } from 'lucide-react';
+import { useDashboard } from '../context/DashboardContext';
 
 const Subscriber = () => {
   const [subscriptions, setSubscriptions] = useState([]);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [searchTerm, setSearchTerm] = useState('');
   const { updateDashboardData } = useDashboard();
   const hasFetched = useRef(false);
 
@@ -23,12 +24,10 @@ const Subscriber = () => {
       const response = await axios.get(`${import.meta.env.VITE_BASE_URL}/api/subscriptions/get`);
       const data = response.data || [];
       setSubscriptions(data);
-
-      // Update Dashboard KPI
       updateDashboardData({ subscriberCount: data.length });
     } catch (error) {
       console.error('Error fetching subscriptions:', error);
-      setError('Failed to fetch subscriptions');
+      setError(error.message);
       updateDashboardData({ subscriberCount: 0 });
     } finally {
       setLoading(false);
@@ -45,7 +44,6 @@ const Subscriber = () => {
           { params: { userId, packageId } }
         );
         alert(response.data);
-
         const updated = subscriptions.map(sub =>
           sub.userId === userId && sub.packageId === packageId
             ? { ...sub, status: 'INACTIVE' }
@@ -61,79 +59,123 @@ const Subscriber = () => {
     }
   };
 
-  if (loading) return <div className="p-5 text-center text-purple-600">Loading...</div>;
-  if (error) return <div className="p-5 text-center text-red-500">{error}</div>;
+  const filteredSubscriptions = subscriptions.filter(subscription => {
+    return (
+      subscription.price.toString().includes(searchTerm.toLowerCase()) ||
+      subscription.paymentType.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      subscription.status.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      subscription.role.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+  });
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-white to-purple-50 flex items-center justify-center">
+        <div className="flex items-center justify-center space-x-2">
+          <div className="animate-spin w-6 h-6 border-2 border-indigo-600 border-t-transparent rounded-full"></div>
+          <span className="text-gray-600">Loading subscriptions...</span>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-white to-purple-50 flex items-center justify-center">
+        <div className="text-center p-4 text-red-500">Error: {error}</div>
+      </div>
+    );
+  }
 
   return (
-    <div className="p-5 bg-purple-50 min-h-screen">
-      <div className="flex justify-between items-center mb-4">
-        <h1 className="text-2xl font-bold text-purple-800">Manage Subscriptions</h1>
-        {/* <Link
-          to="/addsubscription"
-          className="px-4 py-2 bg-purple-600 text-white rounded hover:bg-purple-700 transition duration-300"
-        >
-          Add Subscription
-        </Link> */}
+    <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-white to-purple-50">
+      <div className="bg-white shadow-sm border-b border-gray-200">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex justify-between items-center py-6">
+            <div className="flex items-center space-x-3">
+              <div className="p-2 bg-gradient-to-r from-indigo-600 to-purple-600 rounded-lg">
+                <Building className="w-8 h-8 text-white" />
+              </div>
+              <div>
+                <h1 className="text-3xl font-bold text-gray-900">Manage Subscriptions</h1>
+                <p className="text-sm text-gray-600">View and manage subscriptions</p>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
-
-      <div className="overflow-x-auto bg-white rounded-lg shadow">
-        <table className="min-w-full">
-          <thead className="bg-purple-600 text-white">
-            <tr>
-              <th className="py-3 px-4 text-left">Sr. No.</th>
-              <th className="py-3 px-4 text-left">User ID</th>
-              <th className="py-3 px-4 text-left">Package ID</th>
-              <th className="py-3 px-4 text-left">Price</th>
-              <th className="py-3 px-4 text-left">Payment Type</th>
-              <th className="py-3 px-4 text-left">Start Date</th>
-              <th className="py-3 px-4 text-left">End Date</th>
-              <th className="py-3 px-4 text-left">Status</th>
-              <th className="py-3 px-4 text-left">Role</th>
-              <th className="py-3 px-4 text-left">Posts Used</th>
-              <th className="py-3 px-4 text-left">Contacts Used</th>
-              <th className="py-3 px-4 text-left">Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {subscriptions.length > 0 ? (
-              subscriptions.map((subscription, index) => (
-                <tr key={subscription.subscriberId} className="border-b border-purple-200 hover:bg-purple-50">
-                  <td className="py-3 px-4">{index + 1}</td>
-                  <td className="py-3 px-4">{subscription.userId}</td>
-                  <td className="py-3 px-4">{subscription.packageId}</td>
-                  <td className="py-3 px-4">₹{subscription.price}</td>
-                  <td className="py-3 px-4">{subscription.paymentType}</td>
-                  <td className="py-3 px-4">
-                    {new Date(subscription.subscriptionStartDate).toLocaleDateString()}
-                  </td>
-                  <td className="py-3 px-4">
-                    {new Date(subscription.subscriptionEndDate).toLocaleDateString()}
-                  </td>
-                  <td className="py-3 px-4">{subscription.status}</td>
-                  <td className="py-3 px-4">{subscription.role}</td>
-                  <td className="py-3 px-4">{subscription.postsUsed}</td>
-                  <td className="py-3 px-4">{subscription.contactsUsed}</td>
-                  <td className="py-3 px-4">
-                    <button
-                      onClick={() =>
-                        handleDeactivateSubscription(subscription.userId, subscription.packageId)
-                      }
-                      className="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600 transition duration-300"
-                    >
-                      Deactivate
-                    </button>
-                  </td>
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-8">
+          <div className="flex flex-col md:flex-row gap-4 items-center justify-between">
+            <div className="relative flex-1 max-w-md">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+              <input
+                type="text"
+                placeholder="Search subscriptions..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-all"
+              />
+            </div>
+          </div>
+        </div>
+        <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+          <div className="overflow-x-auto">
+            <table className="min-w-full divide-y divide-gray-200">
+              <thead className="bg-gradient-to-r from-gray-50 to-gray-100">
+                <tr>
+                  <th className="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Sr. No.</th>
+                  <th className="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Price</th>
+                  <th className="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Payment Type</th>
+                  <th className="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Start Date</th>
+                  <th className="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">End Date</th>
+                  <th className="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Status</th>
+                  <th className="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Role</th>
+                  <th className="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Posts Used</th>
+                  <th className="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Contacts Used</th>
                 </tr>
-              ))
-            ) : (
-              <tr>
-                <td colSpan="12" className="py-3 px-4 text-center text-purple-600">
-                  No subscriptions found.
-                </td>
-              </tr>
-            )}
-          </tbody>
-        </table>
+              </thead>
+              <tbody className="divide-y divide-gray-200">
+                {filteredSubscriptions.length > 0 ? (
+                  filteredSubscriptions.map((subscription, index) => (
+                    <tr key={subscription.subscriberId} className="hover:bg-gray-50 transition-colors duration-150">
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <div className="flex items-center justify-center w-8 h-8 bg-indigo-100 text-indigo-600 rounded-full text-sm font-semibold">
+                          {index + 1}
+                        </div>
+                      </td>
+                      <td className="px-6 py-4">₹{subscription.price}</td>
+                      <td className="px-6 py-4">{subscription.paymentType}</td>
+                      <td className="px-6 py-4">{new Date(subscription.subscriptionStartDate).toLocaleDateString()}</td>
+                      <td className="px-6 py-4">{new Date(subscription.subscriptionEndDate).toLocaleDateString()}</td>
+                      <td className="px-6 py-4">
+                        <span className={`inline-flex px-2 py-1 text-xs font-medium rounded-full border ${
+                          subscription.status === 'ACTIVE' ? 'bg-emerald-100 text-emerald-700 border-emerald-200' : 'bg-red-100 text-red-800 border-red-200'
+                        }`}>
+                          {subscription.status}
+                        </span>
+                      </td>
+                      <td className="px-6 py-4">{subscription.role}</td>
+                      <td className="px-6 py-4">{subscription.remainingPostsUsed}</td>
+                      <td className="px-6 py-4">{subscription.remainingContactsUsed}</td>
+                    </tr>
+                  ))
+                ) : (
+                  <tr>
+                    <td colSpan="9" className="text-center py-12">
+                      <div className="flex flex-col items-center space-y-3">
+                        <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center">
+                          <Building className="w-8 h-8 text-gray-400" />
+                        </div>
+                        <div className="text-gray-600">No subscriptions found</div>
+                      </div>
+                    </td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
+          </div>
+        </div>
       </div>
     </div>
   );

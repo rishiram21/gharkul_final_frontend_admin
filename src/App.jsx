@@ -16,6 +16,8 @@ import Customer from './pages/Customer';
 import ViewPropertyDetails from './subpages/ViewPropertyDetails';
 import AllRequirement from './pages/AllRequirement';
 import ProtectedRoute from './components/ProtectedRoute';
+import AddRequirement from './subpages/AddRequirement';
+import EditPackage from './subpages/EditPackage';
 
 function App() {
   return (
@@ -104,6 +106,16 @@ function App() {
             }
           />
           <Route
+            path="/addrequirement"
+            element={
+              <ProtectedRoute>
+                <Layout>
+                  <AddRequirement />
+                </Layout>
+              </ProtectedRoute>
+            }
+          />
+          <Route
             path="/addsubscription"
             element={
               <ProtectedRoute>
@@ -119,6 +131,16 @@ function App() {
               <ProtectedRoute>
                 <Layout>
                   <AddPackage />
+                </Layout>
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/editpackage/:id"
+            element={
+              <ProtectedRoute>
+                <Layout>
+                  <EditPackage />
                 </Layout>
               </ProtectedRoute>
             }
