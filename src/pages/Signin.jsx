@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
 import { Eye, EyeOff, Shield, AlertCircle, CheckCircle } from 'lucide-react';
 
 const Signin = () => {
@@ -10,65 +11,67 @@ const Signin = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [fieldErrors, setFieldErrors] = useState({});
+
   const navigate = useNavigate();
+  const { setAuthData } = useAuth();
 
   const validateForm = () => {
     const errors = {};
-    
+
     if (!email) {
       errors.email = 'Email is required';
     } else if (!/\S+@\S+\.\S+/.test(email)) {
       errors.email = 'Please enter a valid email address';
     }
-    
+
     if (!password) {
       errors.password = 'Password is required';
     } else if (password.length < 6) {
       errors.password = 'Password must be at least 6 characters';
     }
-    
+
     setFieldErrors(errors);
     return Object.keys(errors).length === 0;
   };
 
   const handleSubmit = async (e) => {
-  e.preventDefault();
-  setError('');
-  setSuccess('');
+    e.preventDefault();
+    setError('');
+    setSuccess('');
 
-  if (!validateForm()) {
-    return;
-  }
-
-  setIsLoading(true);
-
-  try {
-    const response = await fetch(`${import.meta.env.VITE_BASE_URL}/api/auth/admin-login`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ email, password }),
-    });
-
-    const data = await response.json();
-
-    if (response.ok) {
-      setSuccess('Login successful! Redirecting...');
-      setTimeout(() => {
-        navigate('/');
-        console.log('Redirecting to dashboard...');
-      }, 1500);
-    } else {
-      setError(data.message || 'Invalid email or password. Please check your credentials and try again.');
+    if (!validateForm()) {
+      return;
     }
-  } catch (error) {
-    setError('An error occurred. Please try again later.');
-  } finally {
-    setIsLoading(false);
-  }
-};
 
+    setIsLoading(true);
+
+    try {
+      const response = await fetch(`${import.meta.env.VITE_BASE_URL}/api/auth/admin-login`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email, password }),
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        // Assuming the backend returns a token and user data in the response
+        setAuthData(data.user, data.token); // Set user and token in context
+        setSuccess('Login successful! Redirecting...');
+        setTimeout(() => {
+          navigate('/dashboard');
+        }, 1500);
+      } else {
+        setError(data.message || 'Invalid email or password. Please check your credentials and try again.');
+      }
+    } catch (error) {
+      setError('An error occurred. Please try again later.');
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   const handleInputChange = (field, value) => {
     if (field === 'email') {
@@ -76,24 +79,23 @@ const Signin = () => {
     } else {
       setPassword(value);
     }
-    
-    // Clear field-specific error when user starts typing
+
     if (fieldErrors[field]) {
       setFieldErrors(prev => ({ ...prev, [field]: '' }));
     }
-    
-    // Clear general error
+
     if (error) setError('');
     if (success) setSuccess('');
   };
 
   return (
-    <div 
+    <div
       className="min-h-screen flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8 relative"
       style={{
-        backgroundImage: `linear-gradient(135deg, rgba(99, 102, 241, 0.1) 0%, rgba(168, 85, 247, 0.1) 100%), 
-                         url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%236366f1' fill-opacity='0.05'%3E%3Ccircle cx='30' cy='30' r='4'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`,
-        backgroundSize: 'cover, 60px 60px'
+        backgroundImage: `linear-gradient(135deg, rgba(99, 102, 241, 0.1) 0%, rgba(168, 85, 247, 0.1) 100%),
+                         url("/background.png")`,
+        backgroundSize: 'cover',
+        backgroundRepeat:"no-repeat"
       }}
     >
       {/* Animated background elements */}
@@ -101,7 +103,6 @@ const Signin = () => {
         <div className="absolute -top-40 -right-40 w-80 h-80 rounded-full bg-gradient-to-br from-purple-400 to-pink-400 opacity-20 animate-pulse"></div>
         <div className="absolute -bottom-40 -left-40 w-96 h-96 rounded-full bg-gradient-to-tr from-blue-400 to-cyan-400 opacity-20 animate-pulse" style={{ animationDelay: '1s' }}></div>
       </div>
-
       <div className="max-w-md w-full space-y-8 relative z-10">
         {/* Header */}
         <div className="text-center">
@@ -110,11 +111,10 @@ const Signin = () => {
           </div>
           <h2 className="text-3xl font-bold text-gray-900 mb-2">Admin Portal</h2>
           <p className="text-gray-600">Sign in to your administrator account</p>
-          <div className="mt-2 text-sm text-gray-500 bg-gray-50 p-2 rounded-md">
+          {/* <div className="mt-2 text-sm text-gray-500 bg-gray-50 p-2 rounded-md">
             Demo: admin@gmail.com / admin123
-          </div>
+          </div> */}
         </div>
-
         {/* Form */}
         <div className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-xl p-8 border border-white/20">
           <div className="space-y-6">
@@ -125,7 +125,6 @@ const Signin = () => {
                 <span className="text-sm font-medium">{success}</span>
               </div>
             )}
-
             {/* Error Message */}
             {error && (
               <div className="flex items-center space-x-2 text-red-700 bg-red-50 border border-red-200 rounded-lg p-3 animate-fade-in">
@@ -133,7 +132,6 @@ const Signin = () => {
                 <span className="text-sm font-medium">{error}</span>
               </div>
             )}
-
             {/* Email Field */}
             <div>
               <label htmlFor="email" className="block text-sm font-semibold text-gray-700 mb-2">
@@ -156,7 +154,6 @@ const Signin = () => {
                 <p className="mt-1 text-sm text-red-600 animate-fade-in">{fieldErrors.email}</p>
               )}
             </div>
-
             {/* Password Field */}
             <div>
               <label htmlFor="password" className="block text-sm font-semibold text-gray-700 mb-2">
@@ -190,7 +187,6 @@ const Signin = () => {
                 <p className="mt-1 text-sm text-red-600 animate-fade-in">{fieldErrors.password}</p>
               )}
             </div>
-
             {/* Remember Me & Forgot Password */}
             <div className="flex items-center justify-between">
               <div className="flex items-center">
@@ -210,7 +206,6 @@ const Signin = () => {
                 </a>
               </div>
             </div>
-
             {/* Submit Button */}
             <div>
               <button
@@ -234,24 +229,21 @@ const Signin = () => {
               </button>
             </div>
           </div>
-
           {/* Footer */}
           <div className="mt-6 text-center">
-            <p className="text-xs text-gray-500">
+            {/* <p className="text-xs text-gray-500">
               Protected by enterprise-grade security
-            </p>
+            </p> */}
           </div>
         </div>
-
         {/* Additional Info */}
-        <div className="text-center text-sm text-gray-600">
+        {/* <div className="text-center text-sm text-gray-600">
           <p>Need help? Contact IT support at</p>
           <a href="mailto:support@company.com" className="font-medium text-indigo-600 hover:text-indigo-500">
             support@company.com
           </a>
-        </div>
+        </div> */}
       </div>
-
       <style jsx>{`
         @keyframes fade-in {
           from {
@@ -263,7 +255,7 @@ const Signin = () => {
             transform: translateY(0);
           }
         }
-        
+
         .animate-fade-in {
           animation: fade-in 0.3s ease-out;
         }

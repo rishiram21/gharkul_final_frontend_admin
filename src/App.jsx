@@ -1,9 +1,9 @@
+// App.js
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { AuthProvider } from './context/AuthContext'; // Import AuthProvider
 import Layout from './components/Layout';
-
 import Dashboard from './pages/Dashboard';
-import Users from './pages/Customer';
 import Signin from './pages/Signin';
 import Package from './pages/Package';
 import AllProperty from './pages/AllProperty';
@@ -15,37 +15,127 @@ import AddPackage from './subpages/AddPackage';
 import Customer from './pages/Customer';
 import ViewPropertyDetails from './subpages/ViewPropertyDetails';
 import AllRequirement from './pages/AllRequirement';
+import ProtectedRoute from './components/ProtectedRoute';
 
 function App() {
   return (
-    <Router>
-      <Layout>
+    <AuthProvider>
+      <Router>
         <Routes>
           <Route path="/" element={<Signin />} />
-          <Route path="/dashboard" element={<Dashboard />} />
-          <Route path="/users" element={<Users />} />
-          {/* Pages */}
-          <Route path="/allproperty" element={<AllProperty />} />
-          <Route path="/allrequirement" element={<AllRequirement />} />
-          <Route path="/amenities" element={<Amenities />} />
-          <Route path="/package" element={<Package />} />
-          <Route path="/subscriber" element={<Subscriber />} />
-          <Route path="/customer" element={<Customer />} />
-
-
-
-
-          {/* Sub-Pages */}
-          <Route path="/addproperty" element={<AddProperty />} />
-          <Route path="/addsubscription" element={<AddSubscription />} />
-          <Route path="/addpackage" element={<AddPackage />} />
-          <Route path="/allproperty/:propertyId" element={<ViewPropertyDetails />} />
-
-
-
+          <Route
+            path="/dashboard"
+            element={
+              <ProtectedRoute>
+                <Layout>
+                  <Dashboard />
+                </Layout>
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/allproperty"
+            element={
+              <ProtectedRoute>
+                <Layout>
+                  <AllProperty />
+                </Layout>
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/allrequirement"
+            element={
+              <ProtectedRoute>
+                <Layout>
+                  <AllRequirement />
+                </Layout>
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/amenities"
+            element={
+              <ProtectedRoute>
+                <Layout>
+                  <Amenities />
+                </Layout>
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/package"
+            element={
+              <ProtectedRoute>
+                <Layout>
+                  <Package />
+                </Layout>
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/subscriber"
+            element={
+              <ProtectedRoute>
+                <Layout>
+                  <Subscriber />
+                </Layout>
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/customer"
+            element={
+              <ProtectedRoute>
+                <Layout>
+                  <Customer />
+                </Layout>
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/addproperty"
+            element={
+              <ProtectedRoute>
+                <Layout>
+                  <AddProperty />
+                </Layout>
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/addsubscription"
+            element={
+              <ProtectedRoute>
+                <Layout>
+                  <AddSubscription />
+                </Layout>
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/addpackage"
+            element={
+              <ProtectedRoute>
+                <Layout>
+                  <AddPackage />
+                </Layout>
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/allproperty/:propertyId"
+            element={
+              <ProtectedRoute>
+                <Layout>
+                  <ViewPropertyDetails />
+                </Layout>
+              </ProtectedRoute>
+            }
+          />
         </Routes>
-      </Layout>
-    </Router>
+      </Router>
+    </AuthProvider>
   );
 }
 

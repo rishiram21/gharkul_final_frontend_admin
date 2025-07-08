@@ -27,45 +27,46 @@ const Customer = () => {
         setLoading(false);
       }
     };
-
     fetchUsers();
   }, [updateDashboardData]);
 
   if (loading) return <div className="text-center p-4">Loading...</div>;
   if (error) return <div className="text-center p-4 text-red-500">Error: {error}</div>;
 
+  
+
   return (
-    <div className="p-5">
-      <h1 className="text-2xl font-bold mb-4">User List</h1>
-      <div className="overflow-x-auto">
-        <table className="min-w-full bg-white border">
-          <thead>
+    <div className="p-5 bg-purple-50 min-h-screen">
+      <h1 className="text-2xl font-bold mb-4 text-purple-800">User List</h1>
+      <div className="overflow-x-auto bg-white rounded-lg shadow">
+        <table className="min-w-full">
+          <thead className="bg-purple-600 text-white">
             <tr>
-              <th className="py-2 px-4 border">ID</th>
-              <th className="py-2 px-4 border">First Name</th>
-              <th className="py-2 px-4 border">Last Name</th>
-              <th className="py-2 px-4 border">Email</th>
-              <th className="py-2 px-4 border">Phone Number</th>
-              <th className="py-2 px-4 border">Role</th>
+              <th className="py-3 px-4 text-left">ID</th>
+              <th className="py-3 px-4 text-left">First Name</th>
+              <th className="py-3 px-4 text-left">Last Name</th>
+              <th className="py-3 px-4 text-left">Email</th>
+              <th className="py-3 px-4 text-left">Phone Number</th>
+              <th className="py-3 px-4 text-left">Role</th>
             </tr>
           </thead>
           <tbody>
             {users.length > 0 ? (
               users.map((user) => (
-                <tr key={user.userId}>
-                  <td className="py-2 px-4 border">{user.userId}</td>
-                  <td className="py-2 px-4 border">{user.firstName}</td>
-                  <td className="py-2 px-4 border">{user.lastName}</td>
-                  <td className="py-2 px-4 border">{user.email}</td>
-                  <td className="py-2 px-4 border">{user.phoneNumber}</td>
-                  <td className="py-2 px-4 border">
+                <tr key={user.userId} className="border-b border-purple-200 hover:bg-purple-50">
+                  <td className="py-3 px-4">{user.userId}</td>
+                  <td className="py-3 px-4">{user.firstName}</td>
+                  <td className="py-3 px-4">{user.lastName}</td>
+                  <td className="py-3 px-4">{user.email}</td>
+                  <td className="py-3 px-4">{user.phoneNumber}</td>
+                  <td className="py-3 px-4">
                     {user.userRole === 'CUSTOMER' ? 'OWNER' : user.userRole}
                   </td>
                 </tr>
               ))
             ) : (
               <tr>
-                <td colSpan="6" className="py-2 px-4 border text-center">No users found.</td>
+                <td colSpan="6" className="py-3 px-4 text-center text-purple-600">No users found.</td>
               </tr>
             )}
           </tbody>

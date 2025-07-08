@@ -1,3 +1,4 @@
+// Header.js
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { LogOut, Menu } from 'lucide-react';
@@ -9,14 +10,13 @@ const Header = ({ onToggleSidebar }) => {
 
   const handleLogout = () => {
     localStorage.removeItem('isAuthenticated');
-    navigate('/signin');
+    navigate('/');
   };
 
   const toggleDropdown = () => {
     setDropdownOpen((prev) => !prev);
   };
 
-  // Close dropdown on outside click
   useEffect(() => {
     function handleClickOutside(event) {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
@@ -30,9 +30,7 @@ const Header = ({ onToggleSidebar }) => {
   return (
     <header className="bg-violet-900 text-white py-4 shadow-md z-50 w-full">
       <div className="flex items-center justify-between px-6">
-        {/* Left: Logo + Title */}
         <div className="flex items-center space-x-3">
-          {/* Hamburger Menu (mobile only) */}
           <button
             onClick={onToggleSidebar}
             className="text-white md:hidden mr-2"
@@ -40,7 +38,6 @@ const Header = ({ onToggleSidebar }) => {
           >
             <Menu className="w-6 h-6" />
           </button>
-
           <img
             src="/gharkul.png"
             alt="Gharkul Logo"
@@ -50,8 +47,6 @@ const Header = ({ onToggleSidebar }) => {
             Gharkul
           </h1>
         </div>
-
-        {/* Right: Admin Dropdown */}
         <div className="relative" ref={dropdownRef}>
           <button
             onClick={toggleDropdown}
@@ -64,17 +59,14 @@ const Header = ({ onToggleSidebar }) => {
             />
             <div className="hidden sm:flex flex-col text-left">
               <span className="text-sm font-semibold text-white">Admin</span>
-              {/* <span className="text-xs text-gray-300">admin@gmail.com</span> */}
             </div>
           </button>
-
           {dropdownOpen && (
             <div className="absolute right-0 mt-2 w-60 bg-white text-gray-900 rounded-lg shadow-lg ring-1 ring-black/5 z-50 animate-fade-in">
               <div className="px-4 py-3 border-b border-gray-200">
                 <p className="text-sm font-semibold text-gray-900">Admin</p>
                 <p className="text-sm text-gray-500">admin@gmail.com</p>
               </div>
-              {/* Future: Add more options here if needed */}
               <button
                 onClick={handleLogout}
                 className="flex items-center px-4 py-3 text-red-600 hover:bg-red-100 w-full text-sm font-medium transition-colors"
@@ -84,7 +76,6 @@ const Header = ({ onToggleSidebar }) => {
             </div>
           )}
         </div>
-
       </div>
     </header>
   );
