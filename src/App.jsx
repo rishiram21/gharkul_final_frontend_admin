@@ -18,6 +18,7 @@ import AllRequirement from './pages/AllRequirement';
 import ProtectedRoute from './components/ProtectedRoute';
 import AddRequirement from './subpages/AddRequirement';
 import EditPackage from './subpages/EditPackage';
+import EditRequirement from './subpages/EditRequirement';
 
 function App() {
   return (
@@ -111,6 +112,16 @@ function App() {
               <ProtectedRoute>
                 <Layout>
                   <AddRequirement />
+                </Layout>
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/editrequirement/:id"
+            element={
+              <ProtectedRoute>
+                <Layout>
+                  <EditRequirement />
                 </Layout>
               </ProtectedRoute>
             }

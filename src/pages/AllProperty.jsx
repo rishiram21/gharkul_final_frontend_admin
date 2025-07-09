@@ -209,7 +209,7 @@ const AllProperty = () => {
                             <User className="w-4 h-4 text-gray-600" />
                           </div>
                           <div>
-                            <div className="text-sm font-medium text-gray-900">{property.postedByUserId}</div>
+                            <div className="text-sm font-medium text-gray-900">{property.postedByUserName}</div>
                             <div className="text-xs text-gray-500">Property Owner</div>
                           </div>
                         </div>

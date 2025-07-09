@@ -1,4 +1,4 @@
-import React, { useState, useContext } from 'react';
+import React, { useState } from 'react';
 
 function AddRequirement() {
   const [formData, setFormData] = useState({
@@ -8,41 +8,39 @@ function AddRequirement() {
     minBudget: '',
     maxBudget: '',
     preferredLocations: ['', '', ''],
-    additionalRequirements: ''
+    additionalRequirements: '',
+    phoneNumber: '',
+    userName: '',
+    status: 'ACTIVE'
   });
-  const token = localStorage.getItem('authToken');
-    console.log('Token:', token);
 
-  // Rest of your existing code
-
- 
   const [errors, setErrors] = useState({});
   const [touched, setTouched] = useState({});
   const [isSubmitting, setIsSubmitting] = useState(false);
- 
+
   const validateField = (name, value) => {
     switch (name) {
       case 'lookingFor':
         if (!value.trim()) return 'Please specify what you are looking for';
         if (value.trim().length < 2) return 'Please enter at least 2 characters';
         return '';
-     
+
       case 'propertyType':
         if (!value.trim()) return 'Please specify the property type';
         if (value.trim().length < 2) return 'Please enter at least 2 characters';
         return '';
-     
+
       case 'bhkConfig':
         if (!value.trim()) return 'Please specify BHK configuration';
         return '';
-     
+
       case 'minBudget':
         if (!value) return 'Please enter starting budget';
         const startAmount = parseFloat(value);
         if (isNaN(startAmount) || startAmount <= 0) return 'Please enter a valid amount';
         if (startAmount < 1000) return 'Minimum budget should be ₹1,000';
         return '';
-     
+
       case 'maxBudget':
         if (!value) return 'Please enter maximum budget';
         const endAmount = parseFloat(value);
@@ -53,52 +51,62 @@ function AddRequirement() {
           return 'Maximum budget should be greater than starting budget';
         }
         return '';
-     
+
       case 'preferredLocations':
         const filledLocations = value.filter(loc => loc.trim() !== '');
         if (filledLocations.length === 0) return 'Please enter at least one location';
         return '';
-     
+
+      case 'phoneNumber':
+        if (!value.trim()) return 'Please enter your phone number';
+        if (!/^\d{10}$/.test(value.trim())) return 'Please enter a valid phone number';
+        return '';
+
+      case 'userName':
+        if (!value.trim()) return 'Please enter your name';
+        if (value.trim().length < 2) return 'Please enter at least 2 characters';
+        return '';
+
       default:
         return '';
     }
   };
- 
+
   const validateForm = () => {
     const newErrors = {};
-   
+
     // Validate all fields
     Object.keys(formData).forEach(key => {
       if (key === 'additionalRequirements') return; // Optional field
       const error = validateField(key, formData[key]);
       if (error) newErrors[key] = error;
     });
- 
+
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
- 
+
   const handleInputChange = (name, value) => {
     setFormData(prev => ({ ...prev, [name]: value }));
-   
+
     // Clear error when user starts typing
     if (errors[name]) {
       setErrors(prev => ({ ...prev, [name]: '' }));
     }
   };
- 
+
   const handleLocationChange = (index, value) => {
     const newLocations = [...formData.preferredLocations];
     newLocations[index] = value;
     handleInputChange('preferredLocations', newLocations);
   };
- 
+
   const handleBlur = (name) => {
     setTouched(prev => ({ ...prev, [name]: true }));
     const error = validateField(name, formData[name]);
     setErrors(prev => ({ ...prev, [name]: error }));
   };
- 
+
   const formatCurrency = (amount) => {
     const numAmount = parseFloat(amount);
     if (isNaN(numAmount)) return '';
@@ -111,103 +119,99 @@ function AddRequirement() {
     }
     return `₹${numAmount.toLocaleString()}`;
   };
- 
+
   const handleSubmit = async () => {
-  // Mark all fields as touched
-  const allTouched = {};
-  Object.keys(formData).forEach(key => {
-    allTouched[key] = true;
-  });
-  setTouched(allTouched);
+    // Mark all fields as touched
+    const allTouched = {};
+    Object.keys(formData).forEach(key => {
+      allTouched[key] = true;
+    });
+    setTouched(allTouched);
 
-  if (!validateForm()) {
-    return;
-  }
-
-  setIsSubmitting(true);
-
-  try {
-    const submissionData = {
-      ...formData,
-      preferredLocations: formData.preferredLocations.filter(location => location.trim() !== '')
-    };
-
-    // Get the token from the AuthContext
-    const token = localStorage.getItem('authToken');
-    console.log('Token:', token); // Log the token to check its value
-
-    if (!token) {
-      alert('No token found. Please log in again.');
+    if (!validateForm()) {
       return;
     }
 
-    // Make an actual API call to the backend
-    const response = await fetch(`${import.meta.env.VITE_BASE_URL}/api/requirement/submit`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${token}`
-      },
-      body: JSON.stringify(submissionData)
-    });
+    setIsSubmitting(true);
 
-    if (!response.ok) {
-      const errorData = await response.json(); // Try to get more details about the error
-      console.error('Server responded with an error:', errorData);
-      throw new Error('Network response was not ok');
+    try {
+      const submissionData = {
+        ...formData,
+        preferredLocations: formData.preferredLocations.filter(location => location.trim() !== '')
+      };
+
+      const token = localStorage.getItem('authToken');
+      if (!token) {
+        alert('No token found. Please log in again.');
+        return;
+      }
+
+      const response = await fetch(`${import.meta.env.VITE_BASE_URL}/api/requirement/submit`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify(submissionData)
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        console.error('Server responded with an error:', errorData);
+        throw new Error('Network response was not ok');
+      }
+
+      const result = await response.json();
+      console.log('Form submitted:', result);
+      alert('🎉 Requirement posted successfully! We will connect you with suitable properties soon.');
+
+      // Reset form
+      setFormData({
+        lookingFor: '',
+        propertyType: '',
+        bhkConfig: '',
+        minBudget: '',
+        maxBudget: '',
+        preferredLocations: ['', '', ''],
+        additionalRequirements: '',
+        phoneNumber: '',
+        userName: '',
+        status: 'ACTIVE'
+      });
+
+      setErrors({});
+      setTouched({});
+    } catch (error) {
+      console.error('There was an error submitting the form:', error);
+      alert('There was an error submitting the form. Please try again.');
+    } finally {
+      setIsSubmitting(false);
     }
+  };
 
-    const result = await response.json();
-    console.log('Form submitted:', result);
-    alert('🎉 Requirement posted successfully! We will connect you with suitable properties soon.');
-
-    // Reset form
-    setFormData({
-      lookingFor: '',
-      propertyType: '',
-      bhkConfig: '',
-      minBudget: '',
-      maxBudget: '',
-      preferredLocations: ['', '', ''],
-      additionalRequirements: ''
-    });
-    setErrors({});
-    setTouched({});
-  } catch (error) {
-    console.error('There was an error submitting the form:', error);
-    alert('There was an error submitting the form. Please try again.');
-  } finally {
-    setIsSubmitting(false);
-  }
-};
-
-
-
-
- 
   const getInputClasses = (fieldName) => {
     const baseClasses = "w-full px-3 py-3 sm:px-4 sm:py-3 border rounded-xl transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-indigo-500 text-sm sm:text-base";
-   
+
     if (errors[fieldName] && touched[fieldName]) {
       return `${baseClasses} border-red-500 bg-red-50 focus:border-red-500 focus:ring-red-200`;
     } else if (touched[fieldName] && !errors[fieldName] && formData[fieldName]) {
       return `${baseClasses} border-green-500 bg-green-50 focus:border-green-500 focus:ring-green-200`;
     }
-   
+
     return `${baseClasses} border-gray-300 hover:border-gray-400 focus:border-indigo-500`;
   };
- 
+
   const ErrorMessage = ({ error }) => (
     error ? (
       <div className="flex items-center mt-2 text-red-600 text-xs sm:text-sm animate-pulse">
         <svg className="w-3 h-3 sm:w-4 sm:h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
-          <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+          <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 001-1z" clipRule="evenodd" />
         </svg>
         {error}
       </div>
     ) : null
   );
- 
+
   const SuccessIcon = ({ show }) => (
     show ? (
       <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
@@ -217,7 +221,7 @@ function AddRequirement() {
       </div>
     ) : null
   );
- 
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-blue-50 to-purple-50 py-4 px-3 sm:py-6 sm:px-4 lg:py-12">
       <div className="max-w-4xl mx-auto">
@@ -235,7 +239,7 @@ function AddRequirement() {
             Tell us exactly what you're looking for and we'll connect you with the perfect property matches
           </p>
         </div>
- 
+
         {/* Progress Bar */}
         <div className="bg-white rounded-lg sm:rounded-2xl p-4 sm:p-6 shadow-lg mb-4 sm:mb-6 lg:mb-8">
           <div className="flex items-center justify-between mb-2">
@@ -243,7 +247,7 @@ function AddRequirement() {
             <span className="text-xs sm:text-sm font-medium text-indigo-600">
               {Math.round((Object.values(formData).filter(val =>
                 Array.isArray(val) ? val.some(v => v.trim()) : val.trim()
-              ).length / 6) * 100)}%
+              ).length / 9) * 100)}%
             </span>
           </div>
           <div className="w-full bg-gray-200 rounded-full h-2 sm:h-3">
@@ -252,40 +256,38 @@ function AddRequirement() {
               style={{
                 width: `${(Object.values(formData).filter(val =>
                   Array.isArray(val) ? val.some(v => v.trim()) : val.trim()
-                ).length / 6) * 100}%`
+                ).length / 9) * 100}%`
               }}
             ></div>
           </div>
         </div>
- 
-        {/* Form Fields - Single Column Layout for Mobile, Two Column for Desktop */}
+
+        {/* Form Fields */}
         <div className="space-y-4 sm:space-y-6">
-         
           {/* Row 1: Looking For */}
           <div className="bg-white rounded-lg sm:rounded-2xl p-4 sm:p-6 lg:p-8 shadow-lg hover:shadow-xl transition-all duration-300 border border-gray-100">
-  <h2 className="text-lg sm:text-xl lg:text-2xl font-bold text-gray-900 mb-4 sm:mb-6 flex items-center">
-    <span className="w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-r from-indigo-600 to-purple-600 rounded-full flex items-center justify-center mr-3 sm:mr-4 text-white font-bold text-sm sm:text-base shadow-lg">1</span>
-    What are you looking for?
-  </h2>
-  <div className="relative">
-    <select
-      value={formData.lookingFor}
-      onChange={(e) => handleInputChange('lookingFor', e.target.value)}
-      onBlur={() => handleBlur('lookingFor')}
-      className={getInputClasses('lookingFor')}
-    >
-      <option value="" disabled>Select an option</option>
-      <option value="Buy">Buy</option>
-      <option value="Rent">Rent</option>
-      <option value="PG/Hostel">PG/Hostel</option>
-      <option value="Roommate">Roommate</option>
-    </select>
-    <SuccessIcon show={touched.lookingFor && !errors.lookingFor && formData.lookingFor} />
-  </div>
-  <ErrorMessage error={errors.lookingFor} />
-</div>
+            <h2 className="text-lg sm:text-xl lg:text-2xl font-bold text-gray-900 mb-4 sm:mb-6 flex items-center">
+              <span className="w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-r from-indigo-600 to-purple-600 rounded-full flex items-center justify-center mr-3 sm:mr-4 text-white font-bold text-sm sm:text-base shadow-lg">1</span>
+              What are you looking for?
+            </h2>
+            <div className="relative">
+              <select
+                value={formData.lookingFor}
+                onChange={(e) => handleInputChange('lookingFor', e.target.value)}
+                onBlur={() => handleBlur('lookingFor')}
+                className={getInputClasses('lookingFor')}
+              >
+                <option value="" disabled>Select an option</option>
+                <option value="Buy">Buy</option>
+                <option value="Rent">Rent</option>
+                <option value="PG/Hostel">PG/Hostel</option>
+                <option value="Roommate">Roommate</option>
+              </select>
+              <SuccessIcon show={touched.lookingFor && !errors.lookingFor && formData.lookingFor} />
+            </div>
+            <ErrorMessage error={errors.lookingFor} />
+          </div>
 
- 
           {/* Row 2: Property Type & BHK Configuration */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
             {/* Property Type */}
@@ -307,7 +309,7 @@ function AddRequirement() {
               </div>
               <ErrorMessage error={errors.propertyType} />
             </div>
- 
+
             {/* BHK Configuration */}
             <div className="bg-white rounded-lg sm:rounded-2xl p-4 sm:p-6 lg:p-8 shadow-lg hover:shadow-xl transition-all duration-300 border border-gray-100">
               <h2 className="text-lg sm:text-xl lg:text-2xl font-bold text-gray-900 mb-4 sm:mb-6 flex items-center">
@@ -328,7 +330,7 @@ function AddRequirement() {
               <ErrorMessage error={errors.bhkConfig} />
             </div>
           </div>
- 
+
           {/* Row 3: Budget Range */}
           <div className="bg-white rounded-lg sm:rounded-2xl p-4 sm:p-6 lg:p-8 shadow-lg hover:shadow-xl transition-all duration-300 border border-gray-100">
             <h2 className="text-lg sm:text-xl lg:text-2xl font-bold text-gray-900 mb-4 sm:mb-6 flex items-center">
@@ -359,7 +361,7 @@ function AddRequirement() {
                 )}
                 <ErrorMessage error={errors.minBudget} />
               </div>
-             
+
               <div>
                 <label className="block text-xs sm:text-sm font-semibold text-gray-700 mb-2 sm:mb-3">
                   Maximum Budget *
@@ -385,7 +387,7 @@ function AddRequirement() {
               </div>
             </div>
           </div>
- 
+
           {/* Row 4: Locations */}
           <div className="bg-white rounded-lg sm:rounded-2xl p-4 sm:p-6 lg:p-8 shadow-lg hover:shadow-xl transition-all duration-300 border border-gray-100">
             <h2 className="text-lg sm:text-xl lg:text-2xl font-bold text-gray-900 mb-4 sm:mb-6 flex items-center">
@@ -414,7 +416,7 @@ function AddRequirement() {
             </div>
             <ErrorMessage error={errors.preferredLocations} />
           </div>
- 
+
           {/* Row 5: Additional Requirements */}
           <div className="bg-white rounded-lg sm:rounded-2xl p-4 sm:p-6 lg:p-8 shadow-lg hover:shadow-xl transition-all duration-300 border border-gray-100">
             <h2 className="text-lg sm:text-xl lg:text-2xl font-bold text-gray-900 mb-4 sm:mb-6 flex items-center">
@@ -430,8 +432,49 @@ function AddRequirement() {
               className="w-full px-3 py-3 sm:px-4 sm:py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent resize-none transition-all duration-200 hover:border-gray-400 text-sm sm:text-base"
             />
           </div>
+
+          {/* Row 6: Contact Information */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
+            <div className="bg-white rounded-lg sm:rounded-2xl p-4 sm:p-6 lg:p-8 shadow-lg hover:shadow-xl transition-all duration-300 border border-gray-100">
+              <h2 className="text-lg sm:text-xl lg:text-2xl font-bold text-gray-900 mb-4 sm:mb-6 flex items-center">
+                <span className="w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-r from-indigo-600 to-purple-600 rounded-full flex items-center justify-center mr-3 sm:mr-4 text-white font-bold text-sm sm:text-base shadow-lg">7</span>
+                Phone Number
+              </h2>
+              <div className="relative">
+                <input
+                  type="text"
+                  value={formData.phoneNumber}
+                  onChange={(e) => handleInputChange('phoneNumber', e.target.value)}
+                  onBlur={() => handleBlur('phoneNumber')}
+                  placeholder="Enter your phone number"
+                  className={getInputClasses('phoneNumber')}
+                />
+                <SuccessIcon show={touched.phoneNumber && !errors.phoneNumber && formData.phoneNumber} />
+              </div>
+              <ErrorMessage error={errors.phoneNumber} />
+            </div>
+
+            <div className="bg-white rounded-lg sm:rounded-2xl p-4 sm:p-6 lg:p-8 shadow-lg hover:shadow-xl transition-all duration-300 border border-gray-100">
+              <h2 className="text-lg sm:text-xl lg:text-2xl font-bold text-gray-900 mb-4 sm:mb-6 flex items-center">
+                <span className="w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-r from-indigo-600 to-purple-600 rounded-full flex items-center justify-center mr-3 sm:mr-4 text-white font-bold text-sm sm:text-base shadow-lg">8</span>
+                Your Name
+              </h2>
+              <div className="relative">
+                <input
+                  type="text"
+                  value={formData.userName}
+                  onChange={(e) => handleInputChange('userName', e.target.value)}
+                  onBlur={() => handleBlur('userName')}
+                  placeholder="Enter your name"
+                  className={getInputClasses('userName')}
+                />
+                <SuccessIcon show={touched.userName && !errors.userName && formData.userName} />
+              </div>
+              <ErrorMessage error={errors.userName} />
+            </div>
+          </div>
         </div>
- 
+
         {/* Enhanced Submit Button */}
         <div className="bg-white rounded-lg sm:rounded-2xl p-4 sm:p-6 lg:p-8 shadow-lg mt-4 sm:mt-6 lg:mt-8 border border-gray-100">
           <button
@@ -466,6 +509,5 @@ function AddRequirement() {
     </div>
   );
 }
- 
+
 export default AddRequirement;
- 

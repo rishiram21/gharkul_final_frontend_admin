@@ -103,59 +103,64 @@ const AllRequirement = () => {
           <div className="overflow-x-auto">
             <table className="w-full">
               <thead>
-                <tr className="bg-gradient-to-r from-gray-50 to-gray-100 border-b border-gray-200">
-                  <th className="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Sr. No.</th>
-                  <th className="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Looking For</th>
-                  <th className="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Property Type</th>
-                  <th className="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">BHK Config</th>
-                  <th className="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Budget Range</th>
-                  <th className="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Preferred Locations</th>
-                  <th className="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Additional Requirements</th>
-                  <th className="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Phone Number</th>
-                  <th className="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Status</th>
-                </tr>
-              </thead>
+  <tr className="bg-gradient-to-r from-gray-50 to-gray-100 border-b border-gray-200">
+    <th className="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Sr. No.</th>
+    <th className="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Looking For</th>
+    <th className="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Property Type</th>
+    <th className="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">BHK Config</th>
+    <th className="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Budget Range</th>
+    <th className="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Preferred Locations</th>
+    <th className="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Additional Requirements</th>
+    <th className="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Phone Number</th>
+    <th className="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Actions</th>
+  </tr>
+</thead>
+
               <tbody className="divide-y divide-gray-200">
-                {requirements.length > 0 ? (
-                  requirements.map((requirement, index) => (
-                    <tr key={requirement.requirementId} className="hover:bg-gray-50 transition-colors duration-150">
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="flex items-center justify-center w-8 h-8 bg-indigo-100 text-indigo-600 rounded-full text-sm font-semibold">
-                          {index + 1}
-                        </div>
-                      </td>
-                      <td className="px-6 py-4">{requirement.lookingFor}</td>
-                      <td className="px-6 py-4">{requirement.propertyType}</td>
-                      <td className="px-6 py-4">{requirement.bhkConfig}</td>
-                      <td className="px-6 py-4">₹{requirement.minBudget} - ₹{requirement.maxBudget}</td>
-                      <td className="px-6 py-4">{requirement.preferredLocations?.join(', ')}</td>
-                      <td className="px-6 py-4">{requirement.additionalRequirements}</td>
-                      <td className="px-6 py-4">
-                        <div className="flex items-center space-x-2">
-                          <Phone className="w-4 h-4 text-gray-500" />
-                          <span>{requirement.phoneNumber}</span>
-                        </div>
-                      </td>
-                      <td className="px-6 py-4">
-                        <span className={`inline-flex px-2 py-1 text-xs font-medium rounded-full border ${requirement.status === 'Active' ? 'bg-emerald-100 text-emerald-700 border-emerald-200' : 'bg-gray-100 text-gray-700 border-gray-200'}`}>
-                          {requirement.status}
-                        </span>
-                      </td>
-                    </tr>
-                  ))
-                ) : (
-                  <tr>
-                    <td colSpan="9" className="text-center py-12">
-                      <div className="flex flex-col items-center space-y-3">
-                        <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center">
-                          <Building className="w-8 h-8 text-gray-400" />
-                        </div>
-                        <div className="text-gray-600">No requirements found</div>
-                      </div>
-                    </td>
-                  </tr>
-                )}
-              </tbody>
+  {requirements.length > 0 ? (
+    requirements.map((requirement, index) => (
+      <tr key={requirement.requirementId} className="hover:bg-gray-50 transition-colors duration-150">
+        <td className="px-6 py-4 whitespace-nowrap">
+          <div className="flex items-center justify-center w-8 h-8 bg-indigo-100 text-indigo-600 rounded-full text-sm font-semibold">
+            {index + 1}
+          </div>
+        </td>
+        <td className="px-6 py-4">{requirement.lookingFor}</td>
+        <td className="px-6 py-4">{requirement.propertyType}</td>
+        <td className="px-6 py-4">{requirement.bhkConfig}</td>
+        <td className="px-6 py-4">₹{requirement.minBudget} - ₹{requirement.maxBudget}</td>
+        <td className="px-6 py-4">{requirement.preferredLocations?.join(', ')}</td>
+        <td className="px-6 py-4">{requirement.additionalRequirements}</td>
+        <td className="px-6 py-4">
+          <div className="flex items-center space-x-2">
+            <Phone className="w-4 h-4 text-gray-500" />
+            <span>{requirement.phoneNumber}</span>
+          </div>
+        </td>
+        {/* <td className="px-6 py-4 whitespace-nowrap">
+          <Link
+            to={`/editrequirement/${requirement.requirementId}`}
+            className="inline-flex items-center px-3 py-1 bg-gradient-to-r from-indigo-500 to-purple-500 text-white font-medium rounded-md shadow-sm hover:from-indigo-600 hover:to-purple-600 transition-all duration-200"
+          >
+            Edit
+          </Link>
+        </td> */}
+      </tr>
+    ))
+  ) : (
+    <tr>
+      <td colSpan="9" className="text-center py-12">
+        <div className="flex flex-col items-center space-y-3">
+          <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center">
+            <Building className="w-8 h-8 text-gray-400" />
+          </div>
+          <div className="text-gray-600">No requirements found</div>
+        </div>
+      </td>
+    </tr>
+  )}
+</tbody>
+
             </table>
           </div>
         </div>
