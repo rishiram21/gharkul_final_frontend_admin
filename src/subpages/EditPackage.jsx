@@ -13,6 +13,7 @@ const EditPackage = () => {
     postLimit: '',
     contactLimit: '',
     userRole: '',
+    features:''
   });
 
   useEffect(() => {
@@ -76,6 +77,16 @@ const EditPackage = () => {
             type="number"
             name="durationDays"
             value={pkg.durationDays}
+            onChange={handleChange}
+            className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2"
+          />
+        </div>
+        <div className="mb-4">
+          <label className="block text-sm font-medium text-gray-700">Features</label>
+          <input
+            type="text"
+            name="durationDays"
+            value={pkg.features}
             onChange={handleChange}
             className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2"
           />

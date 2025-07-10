@@ -125,6 +125,7 @@ const Subscriber = () => {
               <thead className="bg-gradient-to-r from-gray-50 to-gray-100">
                 <tr>
                   <th className="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Sr. No.</th>
+                  <th className="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">User Id</th>
                   <th className="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Price</th>
                   <th className="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Payment Type</th>
                   <th className="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Start Date</th>
@@ -144,6 +145,7 @@ const Subscriber = () => {
                           {index + 1}
                         </div>
                       </td>
+                      <td className="px-6 py-4">{subscription.userId}</td>
                       <td className="px-6 py-4">₹{subscription.price}</td>
                       <td className="px-6 py-4">{subscription.paymentType}</td>
                       <td className="px-6 py-4">{new Date(subscription.subscriptionStartDate).toLocaleDateString()}</td>
