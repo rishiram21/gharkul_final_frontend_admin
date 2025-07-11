@@ -17,6 +17,13 @@ const AllProperty = () => {
   const hasFetched = useRef(false);
   const { updateDashboardData } = useDashboard();
 
+  const formatPrice = (price) => {
+  if (price >= 10000000) return `${(price / 10000000).toFixed(price % 10000000 === 0 ? 0 : 1)}Cr`;
+  if (price >= 100000) return `${(price / 100000).toFixed(price % 100000 === 0 ? 0 : 1)}L`;
+  if (price >= 1000) return `${(price / 1000).toFixed(price % 1000 === 0 ? 0 : 1)}k`;
+  return price;
+};
+
   const fetchProperties = async () => {
     setLoading(true);
     try {
@@ -225,7 +232,7 @@ const AllProperty = () => {
                       </td>
                       <td className="px-6 py-4">
                         <div className="space-y-2">
-                          <div className="text-sm font-bold text-gray-900">₹{property.expectedPrice || 'Price not specified'}</div>
+                          <div className="text-sm font-bold text-gray-900">₹{formatPrice(property.expectedPrice || 'Price not specified')}</div>
                           {/* <span className={`inline-flex px-2 py-1 text-xs font-medium rounded-full border ${getStatusColor(property.status || 'Available')}`}>
                             {property.status || 'Available'}
                           </span> */}
