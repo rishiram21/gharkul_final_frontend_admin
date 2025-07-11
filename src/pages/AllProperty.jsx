@@ -24,26 +24,47 @@ const AllProperty = () => {
   return price;
 };
 
+  // const fetchProperties = async () => {
+  //   setLoading(true);
+  //   try {
+  //     const response = await axios.get(`${import.meta.env.VITE_BASE_URL}/api/properties/get`, {
+  //       params: { page, size },
+  //     });
+
+  //     setProperties(response.data.content || []);
+  //     setTotalPages(response.data.totalPages || 0);
+
+  //     // ✅ Update dashboard property count
+  //     updateDashboardData({ propertyCount: response.data.totalElements || 0 });
+  //   } catch (error) {
+  //     console.error('Error fetching properties:', error);
+  //     setProperties([]);
+  //     updateDashboardData({ propertyCount: 0 });
+  //   } finally {
+  //     setLoading(false);
+  //   }
+  // };
+
   const fetchProperties = async () => {
-    setLoading(true);
-    try {
-      const response = await axios.get(`${import.meta.env.VITE_BASE_URL}/api/properties/get`, {
-        params: { page, size },
-      });
+  setLoading(true);
+  try {
+    const response = await axios.get(`${import.meta.env.VITE_BASE_URL}/api/properties/get`);
 
-      setProperties(response.data.content || []);
-      setTotalPages(response.data.totalPages || 0);
+    // Since backend returns a plain list now
+    setProperties(response.data || []);
+    setTotalPages(1); // Optional: If you're still showing page UI, set to 1
 
-      // ✅ Update dashboard property count
-      updateDashboardData({ propertyCount: response.data.totalElements || 0 });
-    } catch (error) {
-      console.error('Error fetching properties:', error);
-      setProperties([]);
-      updateDashboardData({ propertyCount: 0 });
-    } finally {
-      setLoading(false);
-    }
-  };
+    // ✅ Update dashboard property count
+    updateDashboardData({ propertyCount: response.data.length || 0 });
+  } catch (error) {
+    console.error('Error fetching properties:', error);
+    setProperties([]);
+    updateDashboardData({ propertyCount: 0 });
+  } finally {
+    setLoading(false);
+  }
+};
+
 
   useEffect(() => {
     hasFetched.current = false; // reset on page change
@@ -233,9 +254,10 @@ const AllProperty = () => {
                       <td className="px-6 py-4">
                         <div className="space-y-2">
                           <div className="text-sm font-bold text-gray-900">₹{formatPrice(property.expectedPrice || 'Price not specified')}</div>
-                          {/* <span className={`inline-flex px-2 py-1 text-xs font-medium rounded-full border ${getStatusColor(property.status || 'Available')}`}>
+                         
+                          <span className={`inline-flex px-2 py-1 text-xs font-medium rounded-full border ${getStatusColor(property.status || 'Available')}`}>
                             {property.status || 'Available'}
-                          </span> */}
+                          </span>
                         </div>
                       </td>
                       <td className="px-6 py-4">

@@ -130,10 +130,10 @@ const Subscriber = () => {
                   <th className="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Payment Type</th>
                   <th className="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Start Date</th>
                   <th className="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">End Date</th>
-                  <th className="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Status</th>
                   <th className="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Role</th>
                   <th className="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Posts Used</th>
                   <th className="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Contacts Used</th>
+                  <th className="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Status</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-200">
@@ -150,6 +150,10 @@ const Subscriber = () => {
                       <td className="px-6 py-4">{subscription.paymentType}</td>
                       <td className="px-6 py-4">{new Date(subscription.subscriptionStartDate).toLocaleDateString()}</td>
                       <td className="px-6 py-4">{new Date(subscription.subscriptionEndDate).toLocaleDateString()}</td>
+                      
+                      <td className="px-6 py-4">{subscription.role}</td>
+                      <td className="px-6 py-4">{subscription.remainingPostsUsed}</td>
+                      <td className="px-6 py-4">{subscription.remainingContactsUsed}</td>
                       <td className="px-6 py-4">
                         <span className={`inline-flex px-2 py-1 text-xs font-medium rounded-full border ${
                           subscription.status === 'ACTIVE' ? 'bg-emerald-100 text-emerald-700 border-emerald-200' : 'bg-red-100 text-red-800 border-red-200'
@@ -157,9 +161,6 @@ const Subscriber = () => {
                           {subscription.status}
                         </span>
                       </td>
-                      <td className="px-6 py-4">{subscription.role}</td>
-                      <td className="px-6 py-4">{subscription.remainingPostsUsed}</td>
-                      <td className="px-6 py-4">{subscription.remainingContactsUsed}</td>
                     </tr>
                   ))
                 ) : (

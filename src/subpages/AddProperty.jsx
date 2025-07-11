@@ -5,6 +5,8 @@ import { useNavigate } from "react-router-dom";// Adjust the import path as nece
 const PostProperty = () => {
   const navigate = useNavigate();
   const pinCodeRegex = /^[1-9][0-9]{0,5}$/; // allow partial match while typing
+  const [formSubmitted, setFormSubmitted] = useState(false);
+
 
 
 
@@ -67,6 +69,7 @@ const PostProperty = () => {
   const [userPhoneNumber, setuserPhoneNumber] = useState('');
   const [role, setrole] = useState('');
   const [ownerName, setownerName] = useState('');
+  // const [status, setStatus] = useState('');
 
   // PG Specific
   const [roomType, setRoomType] = useState("");
@@ -124,14 +127,92 @@ const PostProperty = () => {
     console.log("Transaction Type:", type);
   };
 
+  // const handleSubmit = async (e) => {
+  //   e.preventDefault();
+
+  //   const formData = new FormData();
+
+
+  //   const propertyData = {
+  //     postedByUserId: 1, // Use the user ID from the context
+  //     category: propertyType || "RESIDENTIAL",
+  //     propertyFor: transactionType || "RENT",
+  //     apartmentType: apartmentType || "FLAT",
+  //     propertyName: propertyName || "test",
+  //     bhkType: bhkType || "BHK_6",
+  //     floor: parseInt(floor) || 1,
+  //     totalFloors: parseInt(totalFloor) || 1,
+  //     totalBuildUpArea: parseFloat(builtUpArea) || 1,
+  //     carpetArea: parseFloat(carpetArea) || 1,
+  //     address: {
+  //       area: area || "test",
+  //       city: "Pune",
+  //       state: state || "test",
+  //       pinCode: pincode || "1",
+  //     },
+  //     buildingType: buildingType || "",
+  //     plotArea: parseFloat(plotArea) || 0,
+  //     length: parseFloat(length) || 0,
+  //     width: parseFloat(width) || 0,
+  //     boundaryWall: boundaryWall || "",
+  //     expectedPrice: parseFloat(expectedPrice) || 0,
+  //     deposit: parseFloat(expectedDeposit) || 1,
+  //     monthlyMaintenance: parseFloat(monthlyMaintenance) || 1,
+  //     availableFrom:
+  //       new Date(availableFrom).toISOString() || new Date().toISOString(),
+  //     preferred_tenants: preferredTenants || "Anyone",
+  //     furnishedType: furnishing || "UNFURNISHED",
+  //     description: description || "test",
+  //     amenityIds: selectedAmenities,
+  //     userPhoneNumber: userPhoneNumber || "",
+  //     role:role || "",
+  //     ownerName:ownerName || ""
+  //   };
+
+  //   console.log("Property Data:", propertyData);
+
+  //   formData.append("property", JSON.stringify(propertyData));
+
+  //   selectedFiles.forEach((file) => {
+  //     formData.append("images", file);
+  //   });
+
+  //   try {
+  //     const response = await axios.post(
+  //       `${import.meta.env.VITE_BASE_URL}/api/properties/add`,
+  //       formData,
+  //       {
+  //         headers: {
+  //           "Content-Type": "multipart/form-data",
+  //         },
+  //       }
+  //     );
+  //     console.log("Property posted successfully:", response.data);
+  //     alert("Property posted successfully!");
+  //     navigate('/allproperty');
+  //   } catch (error) {
+  //     console.error(
+  //       "Error posting property:",
+  //       error.response ? error.response.data : error.message
+  //     );
+  //     alert("Error posting property. Please try again.");
+  //   }
+  // };
+
   const handleSubmit = async (e) => {
-    e.preventDefault();
+  e.preventDefault();
 
-    const formData = new FormData();
+  const formData = new FormData();
 
+  const userId = 1;
+  if (!userId) {
+    console.error("User ID is not available");
+    alert("User ID is not available. Please log in again.");
+    return;
+  }
 
-    const propertyData = {
-      postedByUserId: 1, // Use the user ID from the context
+  const propertyData = {
+    postedByUserId: 1, // Use the user ID from the context
       category: propertyType || "RESIDENTIAL",
       propertyFor: transactionType || "RENT",
       apartmentType: apartmentType || "FLAT",
@@ -163,85 +244,136 @@ const PostProperty = () => {
       amenityIds: selectedAmenities,
       userPhoneNumber: userPhoneNumber || "",
       role:role || "",
-      ownerName:ownerName || ""
-    };
+      ownerName:ownerName || "",
+      // status:status || ""
+  };
 
-    console.log("Property Data:", propertyData);
+  // console.log("Property Data:", propertyData);
+  formData.append("property", JSON.stringify(propertyData));
 
-    formData.append("property", JSON.stringify(propertyData));
+  // ✅ Image validation
+  if (selectedFiles.length === 0) {
+    try {
+      alert("No images uploaded. Attaching default image...");
 
+      const response = await fetch("/default.png"); // Ensure this image exists in /public
+      const blob = await response.blob();
+      const defaultFile = new File([blob], "default.png", { type: blob.type });
+      formData.append("images", defaultFile);
+    } catch (error) {
+      console.error("Failed to load default image:", error);
+      alert("Default image could not be attached. Please try again.");
+      return;
+    }
+  } else if (selectedFiles.length > 4) {
+    alert("You can upload a maximum of 4 images.");
+    return;
+  } else {
     selectedFiles.forEach((file) => {
       formData.append("images", file);
     });
+  }
 
-    try {
-      const response = await axios.post(
-        `${import.meta.env.VITE_BASE_URL}/api/properties/add`,
-        formData,
-        {
-          headers: {
-            "Content-Type": "multipart/form-data",
-          },
-        }
-      );
-      console.log("Property posted successfully:", response.data);
-      alert("Property posted successfully!");
-      navigate('/allproperty');
-    } catch (error) {
-      console.error(
-        "Error posting property:",
-        error.response ? error.response.data : error.message
-      );
-      alert("Error posting property. Please try again.");
-    }
-  };
+  // ✅ Post the form data
+  try {
+    const response = await axios.post(
+      `${import.meta.env.VITE_BASE_URL}/api/properties/add`,
+      formData,
+      {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      }
+    );
 
-  const handleFileChange = (event) => {
-    const files = Array.from(event.target.files);
-    setSelectedFiles(files);
-  };
+    console.log("Property posted successfully:", response.data);
+    alert("Property posted successfully!");
+    navigate('/allproperty');
+  } catch (error) {
+    console.error(
+      "Error posting property:",
+      error.response ? error.response.data : error.message
+    );
+    alert("Error posting property. Please try again.");
+  }
+};
 
-  const renderPropertyPhotos = () => (
-    <div className="mb-6">
-      <h2 className="text-xl font-semibold mb-4 flex items-center">
-        <span className="w-8 h-8 bg-indigo-100 rounded-full flex items-center justify-center mr-3 text-indigo-600 font-bold text-sm">
-          6
-        </span>
-        Property Photos
-      </h2>
-      <div className="border-2 border-dashed border-gray-300 rounded-xl p-4 text-center">
-        <p className="mb-2">
-          {propertyType === "RESIDENTIAL" &&
-          (transactionType === "RENT" || transactionType === "SELL")
-            ? "Upload photo"
-            : "Upload photo"}
+   const handleFileChange = (event) => {
+  const files = Array.from(event.target.files);
+  const totalFiles = selectedFiles.length + files.length;
+
+  if (totalFiles > 8) {
+    alert("You can upload a maximum of 8 images.");
+    return;
+  }
+
+  setSelectedFiles(prevFiles => [...prevFiles, ...files]);
+};
+
+const handleRemoveFile = (index) => {
+  setSelectedFiles(prevFiles => prevFiles.filter((_, i) => i !== index));
+};
+
+const renderPropertyPhotos = () => (
+  <div className="mb-6">
+    <h2 className="text-xl font-semibold mb-4 flex items-center">
+      <span className="w-8 h-8 bg-indigo-100 rounded-full flex items-center justify-center mr-3 text-indigo-600 font-bold text-sm">
+        6
+      </span>
+      Property Photos
+    </h2>
+    <div className="border-2 border-dashed border-gray-300 rounded-xl p-4 text-center">
+      <p className="mb-2 text-gray-700">
+        Upload 1–8 images (required)
+      </p>
+      <input
+        type="file"
+        accept="image/*"
+        multiple
+        onChange={handleFileChange}
+        className="mb-4"
+      />
+      {selectedFiles.length === 0 ? (
+        <div className="flex justify-center mt-4">
+          <img
+            src="/default.png"
+            alt="Default"
+            className="w-40 h-40 object-cover rounded-lg border"
+          />
+        </div>
+      ) : (
+        <div className="mt-4 grid grid-cols-2 md:grid-cols-4 gap-4">
+          {selectedFiles.map((file, index) => (
+            <div key={index} className="relative">
+              <img
+                src={URL.createObjectURL(file)}
+                alt={`Selected ${index}`}
+                className="w-32 h-32 object-cover rounded-lg border"
+              />
+              <button
+                type="button"
+                onClick={() => handleRemoveFile(index)}
+                className="absolute top-0 right-0 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center"
+              >
+                &times;
+              </button>
+            </div>
+          ))}
+        </div>
+      )}
+      {formSubmitted && selectedFiles.length === 0 && (
+        <p className="text-red-600 text-sm mt-2">
+          At least one image is required.
         </p>
-        <input
-          type="file"
-          multiple
-          onChange={handleFileChange}
-          className="mb-4"
-        />
-        {/* <button
-          type="button"
-          onClick={handleSubmit}
-          className="bg-indigo-600 text-white px-4 py-2 rounded-xl hover:bg-indigo-700 transition-colors"
-        >
-          Upload Media
-        </button> */}
-        {selectedFiles.length > 0 && (
-          <div className="mt-4">
-            <p>Selected Files:</p>
-            <ul>
-              {selectedFiles.map((file, index) => (
-                <li key={index}>{file.name}</li>
-              ))}
-            </ul>
-          </div>
-        )}
-      </div>
+      )}
+      {selectedFiles.length > 8 && (
+        <p className="text-red-600 text-sm mt-2">
+          You can only upload up to 8 images.
+        </p>
+      )}
     </div>
-  );
+  </div>
+);
 
   const renderBasicSelection = () => (
     <div className="mb-6">
